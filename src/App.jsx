@@ -16,6 +16,7 @@ export default function App() {
   const [editRecord, setEditRecord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [scanResult, setScanResult] = useState(null);
+  const [pendingPhoto, setPendingPhoto] = useState(null);
 
   // 设置
   const [defaultCurrency, setDefaultCurrency] = useState(() => {
@@ -109,19 +110,16 @@ export default function App() {
     saveSettings({ ...getSettings(), defaultCurrency: code });
   };
 
-  // 从首页相机按钮直接拍照识别
+  // 从首页相机按钮直接拍照识别 — 跳转到扫描页处理
   const handleCameraCapture = async (base64) => {
     const key = getVisionApiKey();
     if (!key) {
       alert('请先在设置中配置豆包 API Key');
       return;
     }
-    try {
-      const result = await recognizeBill(base64);
-      handleScanResult(result);
-    } catch (err) {
-      alert('识别失败: ' + (err.message || '请重试'));
-    }
+    // Store base64 and navigate to scan page which will auto-trigger recognition
+    setPendingPhoto(base64);
+    setPage('scan');
   };
 
   if (loading) {
@@ -160,7 +158,9 @@ export default function App() {
       return (
         <ScanPage
           onResult={handleScanResult}
-          onBack={() => setPage('home')}
+          onBack={() => { setPendingPhoto(null); setPage('home'); }}
+          pendingPhoto={pendingPhoto}
+          onPendingConsumed={() => setPendingPhoto(null)}
         />
       );
     case 'settings':

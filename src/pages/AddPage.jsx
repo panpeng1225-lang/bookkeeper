@@ -7,8 +7,8 @@ export default function AddPage({ defaultCurrency, editRecord, scanResult, onSav
     category: scanResult.category || 'other',
     currency: scanResult.currency || defaultCurrency,
     note: scanResult.note || '',
-    date: new Date().toISOString().slice(0, 10),
-    time: new Date().toTimeString().slice(0, 5),
+    date: scanResult.date || new Date().toISOString().slice(0, 10),
+    time: scanResult.time || new Date().toTimeString().slice(0, 5),
   } : null;
 
   return (

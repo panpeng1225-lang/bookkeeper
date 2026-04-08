@@ -17,9 +17,22 @@ export default function HomePage({ records, defaultCurrency, onNavigate, onEdit,
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => onCameraCapture(ev.target.result);
+    reader.onload = (ev) => {
+      // Compress before sending
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > 800) { h = Math.round(h * 800 / w); w = 800; }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        onCameraCapture(canvas.toDataURL('image/jpeg', 0.6));
+      };
+      img.src = ev.target.result;
+    };
     reader.readAsDataURL(file);
-    e.target.value = ''; // reset so same file can be selected again
+    e.target.value = '';
   };
 
   return (

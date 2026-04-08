@@ -1,5 +1,26 @@
 import { useRef, useState } from 'react';
 
+// Compress image to reduce base64 size for API
+function compressImage(dataUrl, maxWidth = 800) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxWidth) {
+        h = Math.round(h * maxWidth / w);
+        w = maxWidth;
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.6));
+    };
+    img.src = dataUrl;
+  });
+}
+
 export default function PhotoCapture({ onCapture, loading }) {
   const fileRef = useRef(null);
   const [preview, setPreview] = useState(null);
@@ -7,10 +28,10 @@ export default function PhotoCapture({ onCapture, loading }) {
   const handleFile = (file) => {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target.result;
-      setPreview(base64);
-      onCapture(base64);
+    reader.onload = async (e) => {
+      const compressed = await compressImage(e.target.result);
+      setPreview(compressed);
+      onCapture(compressed);
     };
     reader.readAsDataURL(file);
   };

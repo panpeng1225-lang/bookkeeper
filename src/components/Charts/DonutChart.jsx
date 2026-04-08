@@ -6,12 +6,14 @@ export default function DonutChart({ records, formatFn }) {
     const totals = {};
     records.forEach(r => {
       if (r.category === 'income') return;
-      totals[r.category] = (totals[r.category] || 0) + r._converted;
+      totals[r.category] = (totals[r.category] || 0) + (r._converted || 0);
     });
     const entries = Object.entries(totals)
       .map(([id, amount]) => ({ ...CATEGORY_MAP[id], amount }))
       .sort((a, b) => b.amount - a.amount);
     const total = entries.reduce((s, e) => s + e.amount, 0);
+    // Add pct to each entry
+    entries.forEach(e => { e.pct = total > 0 ? e.amount / total : 0; });
     return { entries, total };
   }, [records]);
 
