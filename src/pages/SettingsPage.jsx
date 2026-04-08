@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { CURRENCIES } from '../config/currencies';
 import { getExchangeRate, saveExchangeRate } from '../services/exchangeService';
-import { getDeepseekKey, saveDeepseekKey } from '../config/deepseek';
+import { getVisionApiKey, saveVisionApiKey } from '../config/deepseek';
 
 export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack }) {
   const [rate, setRate] = useState(String(getExchangeRate()));
-  const [apiKey, setApiKey] = useState(getDeepseekKey());
+  const [apiKey, setApiKey] = useState(getVisionApiKey());
   const [saved, setSaved] = useState('');
 
   const handleRateSave = () => {
@@ -18,7 +18,7 @@ export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack
   };
 
   const handleKeySave = () => {
-    saveDeepseekKey(apiKey.trim());
+    saveVisionApiKey(apiKey.trim());
     setSaved('API Key 已保存');
     setTimeout(() => setSaved(''), 2000);
   };
@@ -71,7 +71,7 @@ export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack
         </div>
 
         <div className="settings-section">
-          <div className="field-label">DeepSeek API Key</div>
+          <div className="field-label">豆包 API Key</div>
           <div className="settings-input-row">
             <input
               className="settings-input"
@@ -82,7 +82,7 @@ export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack
             />
             <button className="settings-save-btn" onClick={handleKeySave}>保存</button>
           </div>
-          <div className="settings-hint">用于 AI 识别账单，前往 platform.deepseek.com 获取</div>
+          <div className="settings-hint">用于 AI 识别账单，前往 volcengine.com 火山引擎 获取</div>
         </div>
       </div>
     </div>

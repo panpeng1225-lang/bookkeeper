@@ -1,4 +1,4 @@
-import { DEEPSEEK_API_URL, getDeepseekKey } from '../config/deepseek';
+import { DOUBAO_API_URL, DOUBAO_DEFAULT_MODEL, getVisionApiKey } from '../config/deepseek';
 import { ALL_CATEGORIES } from '../config/categories';
 
 const CATEGORY_IDS = ALL_CATEGORIES.map(c => c.id);
@@ -15,9 +15,9 @@ const SYSTEM_PROMPT = `你是一个账单识别助手。用户会发送账单照
 只返回JSON，不要其他文字。如果无法识别账单，返回 {"error": "无法识别"}`;
 
 export async function recognizeBill(imageBase64) {
-  const apiKey = getDeepseekKey();
+  const apiKey = getVisionApiKey();
   if (!apiKey) {
-    throw new Error('请先在设置中配置 DeepSeek API Key');
+    throw new Error('请先在设置中配置豆包 API Key');
   }
 
   // Remove data URL prefix if present
@@ -25,14 +25,19 @@ export async function recognizeBill(imageBase64) {
     ? imageBase64.split(',')[1]
     : imageBase64;
 
-  const response = await fetch(DEEPSEEK_API_URL, {
+  // Detect mime type from data URL, default to jpeg
+  let mimeType = 'image/jpeg';
+  const mimeMatch = imageBase64.match(/^data:(image\/\w+);/);
+  if (mimeMatch) mimeType = mimeMatch[1];
+
+  const response = await fetch(DOUBAO_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'deepseek-chat',
+      model: DOUBAO_DEFAULT_MODEL,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         {
@@ -40,7 +45,7 @@ export async function recognizeBill(imageBase64) {
           content: [
             {
               type: 'image_url',
-              image_url: { url: `data:image/jpeg;base64,${base64Data}` },
+              image_url: { url: `data:${mimeType};base64,${base64Data}` },
             },
             { type: 'text', text: '请识别这张账单' },
           ],
@@ -52,7 +57,7 @@ export async function recognizeBill(imageBase64) {
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`DeepSeek API 错误: ${response.status} ${err}`);
+    throw new Error(`API 错误: ${response.status} ${err}`);
   }
 
   const data = await response.json();

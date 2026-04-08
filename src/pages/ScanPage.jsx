@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import PhotoCapture from '../components/PhotoCapture';
 import { recognizeBill } from '../services/ocrService';
-import { getDeepseekKey } from '../config/deepseek';
+import { getVisionApiKey } from '../config/deepseek';
 
 export default function ScanPage({ onResult, onBack }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const hasKey = !!getDeepseekKey();
-
   const handleCapture = async (base64) => {
-    if (!hasKey) {
-      setError('请先在设置中配置 DeepSeek API Key');
+    const key = getVisionApiKey();
+    if (!key) {
+      setError('请先在设置中配置豆包 API Key');
       return;
     }
 
@@ -27,6 +26,8 @@ export default function ScanPage({ onResult, onBack }) {
     }
   };
 
+  const hasKey = !!getVisionApiKey();
+
   return (
     <div className="page">
       <div className="nav-bar">
@@ -38,7 +39,7 @@ export default function ScanPage({ onResult, onBack }) {
       <div className="scan-body">
         {!hasKey && (
           <div className="scan-warning">
-            ⚠️ 请先在设置中配置 DeepSeek API Key 才能使用识别功能
+            ⚠️ 请先在设置中配置豆包 API Key 才能使用识别功能
           </div>
         )}
 
