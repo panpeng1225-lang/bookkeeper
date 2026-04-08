@@ -518,20 +518,13 @@ body {
 
 .nav-item-icon { font-size: 20px; }
 
-.nav-item.add-btn { position: relative; }
+.nav-svg-icon {
+  width: 22px;
+  height: 22px;
+}
 
-.nav-item-add {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--c-accent);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: 500;
-  margin-top: -20px;
+.nav-item.action-btn {
+  color: var(--c-accent);
 }
 
 /* ── Scan Entry ───────────────────────── */
@@ -748,14 +741,6 @@ body {
 
 .ranking-item {}
 
-.ranking-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-  font-size: 13px;
-}
-
 .ranking-rank { color: var(--text-tertiary); font-weight: 500; min-width: 22px; }
 .ranking-name { flex: 1; }
 .ranking-amount { color: var(--text-secondary); font-weight: 500; }
@@ -836,3 +821,77 @@ body {
   margin: 0;
 }
 .settings-input[type="number"] { -moz-appearance: textfield; }
+
+/* ── Ranking Details ──────────────────── */
+.ranking-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ranking-arrow {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s;
+  margin-left: 4px;
+}
+
+.ranking-arrow.open {
+  transform: rotate(90deg);
+}
+
+.ranking-details {
+  margin: 8px 0 4px 28px;
+  border-left: 2px solid var(--border);
+  padding-left: 10px;
+}
+
+.ranking-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.ranking-detail-idx {
+  color: var(--text-tertiary);
+  min-width: 20px;
+}
+
+.ranking-detail-note {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-detail-date {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.ranking-detail-amount {
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.ranking-more {
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--c-accent);
+  cursor: pointer;
+}
+
+/* ── Legend Amount ─────────────────────── */
+.legend-amount {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-left: auto;
+  margin-right: 4px;
+}

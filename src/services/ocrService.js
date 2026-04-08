@@ -20,15 +20,11 @@ export async function recognizeBill(imageBase64) {
     throw new Error('请先在设置中配置豆包 API Key');
   }
 
-  // Remove data URL prefix if present
-  const base64Data = imageBase64.includes(',')
-    ? imageBase64.split(',')[1]
-    : imageBase64;
-
-  // Detect mime type from data URL, default to jpeg
-  let mimeType = 'image/jpeg';
-  const mimeMatch = imageBase64.match(/^data:(image\/\w+);/);
-  if (mimeMatch) mimeType = mimeMatch[1];
+  // Build data URL for the image
+  let imageUrl = imageBase64;
+  if (!imageBase64.startsWith('data:')) {
+    imageUrl = `data:image/jpeg;base64,${imageBase64}`;
+  }
 
   const response = await fetch(DOUBAO_API_URL, {
     method: 'POST',
@@ -38,20 +34,22 @@ export async function recognizeBill(imageBase64) {
     },
     body: JSON.stringify({
       model: DOUBAO_DEFAULT_MODEL,
-      messages: [
+      input: [
         { role: 'system', content: SYSTEM_PROMPT },
         {
           role: 'user',
           content: [
             {
-              type: 'image_url',
-              image_url: { url: `data:${mimeType};base64,${base64Data}` },
+              type: 'input_image',
+              image_url: imageUrl,
             },
-            { type: 'text', text: '请识别这张账单' },
+            {
+              type: 'input_text',
+              text: '请识别这张账单',
+            },
           ],
         },
       ],
-      max_tokens: 200,
     }),
   });
 
@@ -61,16 +59,30 @@ export async function recognizeBill(imageBase64) {
   }
 
   const data = await response.json();
-  const text = data.choices?.[0]?.message?.content || '';
 
-  // Extract JSON from response
+  // Extract text from Responses API output
+  let text = '';
+  if (data.output) {
+    for (const item of data.output) {
+      if (item.type === 'message' && item.content) {
+        for (const part of item.content) {
+          if (part.type === 'output_text') text += part.text;
+        }
+      }
+    }
+  }
+  if (!text && data.choices?.[0]?.message?.content) {
+    text = data.choices[0].message.content;
+  }
+
+  if (!text) throw new Error('API 返回为空');
+
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('无法解析识别结果');
 
   const result = JSON.parse(jsonMatch[0]);
   if (result.error) throw new Error(result.error);
 
-  // Validate category
   if (!CATEGORY_IDS.includes(result.category)) {
     result.category = 'other';
   }

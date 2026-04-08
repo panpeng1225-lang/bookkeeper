@@ -56,6 +56,7 @@ export default function DonutChart({ records, formatFn }) {
           <div key={e.id} className="legend-item">
             <span className="legend-dot" style={{ background: e.color }} />
             <span className="legend-name">{e.icon} {e.label}</span>
+            <span className="legend-amount">{formatFn(e.amount)}</span>
             <span className="legend-pct">{Math.round(e.pct * 100)}%</span>
           </div>
         ))}

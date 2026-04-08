@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_CURRENCY } from './config/currencies';
 import { getRecords, addRecord, updateRecord, deleteRecord, getSettings, saveSettings } from './services/recordService';
+import { recognizeBill } from './services/ocrService';
+import { getVisionApiKey } from './config/deepseek';
 import HomePage from './pages/HomePage';
 import AddPage from './pages/AddPage';
 import ListPage from './pages/ListPage';
@@ -107,6 +109,21 @@ export default function App() {
     saveSettings({ ...getSettings(), defaultCurrency: code });
   };
 
+  // 从首页相机按钮直接拍照识别
+  const handleCameraCapture = async (base64) => {
+    const key = getVisionApiKey();
+    if (!key) {
+      alert('请先在设置中配置豆包 API Key');
+      return;
+    }
+    try {
+      const result = await recognizeBill(base64);
+      handleScanResult(result);
+    } catch (err) {
+      alert('识别失败: ' + (err.message || '请重试'));
+    }
+  };
+
   if (loading) {
     return <div className="loading">加载中...</div>;
   }
@@ -163,6 +180,7 @@ export default function App() {
           onEdit={handleEdit}
           onDelete={handleDeleteDirect}
           onSettings={() => setPage('settings')}
+          onCameraCapture={handleCameraCapture}
         />
       );
   }
