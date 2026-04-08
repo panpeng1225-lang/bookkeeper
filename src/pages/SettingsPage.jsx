@@ -1,6 +1,28 @@
+import { useState } from 'react';
 import { CURRENCIES } from '../config/currencies';
+import { getExchangeRate, saveExchangeRate } from '../services/exchangeService';
+import { getDeepseekKey, saveDeepseekKey } from '../config/deepseek';
 
 export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack }) {
+  const [rate, setRate] = useState(String(getExchangeRate()));
+  const [apiKey, setApiKey] = useState(getDeepseekKey());
+  const [saved, setSaved] = useState('');
+
+  const handleRateSave = () => {
+    const val = parseFloat(rate);
+    if (val > 0) {
+      saveExchangeRate(val);
+      setSaved('汇率已保存');
+      setTimeout(() => setSaved(''), 2000);
+    }
+  };
+
+  const handleKeySave = () => {
+    saveDeepseekKey(apiKey.trim());
+    setSaved('API Key 已保存');
+    setTimeout(() => setSaved(''), 2000);
+  };
+
   return (
     <div className="page">
       <div className="nav-bar">
@@ -10,6 +32,8 @@ export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack
       </div>
 
       <div className="settings-body">
+        {saved && <div className="settings-toast">{saved}</div>}
+
         <div className="settings-section">
           <div className="field-label">默认币种</div>
           <div className="currency-options">
@@ -28,6 +52,37 @@ export default function SettingsPage({ defaultCurrency, onChangeCurrency, onBack
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="settings-section">
+          <div className="field-label">汇率设置（1 RMB = ? VND）</div>
+          <div className="settings-input-row">
+            <input
+              className="settings-input"
+              type="number"
+              inputMode="decimal"
+              value={rate}
+              onChange={e => setRate(e.target.value)}
+              placeholder="3400"
+            />
+            <button className="settings-save-btn" onClick={handleRateSave}>保存</button>
+          </div>
+          <div className="settings-hint">统计页可按此汇率换算显示</div>
+        </div>
+
+        <div className="settings-section">
+          <div className="field-label">DeepSeek API Key</div>
+          <div className="settings-input-row">
+            <input
+              className="settings-input"
+              type="password"
+              value={apiKey}
+              onChange={e => setApiKey(e.target.value)}
+              placeholder="sk-..."
+            />
+            <button className="settings-save-btn" onClick={handleKeySave}>保存</button>
+          </div>
+          <div className="settings-hint">用于 AI 识别账单，前往 platform.deepseek.com 获取</div>
         </div>
       </div>
     </div>

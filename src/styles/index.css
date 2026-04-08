@@ -217,27 +217,7 @@ body {
 
 .day-total { color: var(--c-expense); }
 
-/* ── FAB ──────────────────────────────── */
-.fab {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 448px;
-  width: calc(100% - 32px);
-  padding: 14px;
-  background: var(--c-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 10;
-  transition: opacity 0.15s;
-}
-
-.fab:active { opacity: 0.85; }
+/* FAB removed - using bottom nav instead */
 
 /* ── 表单页 ───────────────────────────── */
 .form-page {
@@ -470,3 +450,389 @@ body {
   font-size: 18px;
   font-weight: 600;
 }
+
+/* ── Swipeable ────────────────────────── */
+.swipeable-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipeable-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  width: 140px;
+}
+
+.swipe-btn {
+  flex: 1;
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.swipe-edit { background: var(--c-accent); }
+.swipe-delete { background: var(--c-expense); }
+
+.swipeable-content {
+  position: relative;
+  background: var(--bg-primary);
+  z-index: 1;
+}
+
+/* ── Bottom Nav ───────────────────────── */
+.has-bottom-nav { padding-bottom: 70px; }
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border);
+  padding: 6px 0 env(safe-area-inset-bottom, 8px);
+  z-index: 20;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 16px;
+}
+
+.nav-item.active { color: var(--c-accent); }
+
+.nav-item-icon { font-size: 20px; }
+
+.nav-item.add-btn { position: relative; }
+
+.nav-item-add {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 500;
+  margin-top: -20px;
+}
+
+/* ── Scan Entry ───────────────────────── */
+.scan-entry {
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.scan-entry:active { background: var(--border); }
+.scan-entry-icon { font-size: 20px; }
+.scan-entry-text { flex: 1; font-size: 13px; color: var(--text-secondary); }
+.scan-entry-arrow { color: var(--text-tertiary); font-size: 14px; }
+
+/* ── Scan Page ────────────────────────── */
+.scan-body { padding: 16px; }
+
+.scan-warning {
+  padding: 12px;
+  background: #FAEEDA;
+  color: #854F0B;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.scan-error {
+  padding: 12px;
+  background: #FCEBEB;
+  color: #A32D2D;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.scan-tips {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.scan-tips-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.scan-tips-list { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+/* ── Photo Capture ────────────────────── */
+.photo-capture { margin: 0; }
+
+.photo-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.photo-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: background 0.15s;
+}
+
+.photo-btn:active { background: var(--border); }
+.photo-btn-icon { font-size: 28px; }
+
+.photo-preview {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.photo-preview img {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-md);
+}
+
+.photo-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.photo-retry {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ── Stats Page ───────────────────────── */
+.stats-page-body { padding: 16px; }
+
+.stats-currency-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.range-selector {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.range-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.range-btn.active {
+  background: var(--c-accent);
+  color: white;
+}
+
+.stats-summary {
+  display: flex;
+  align-items: flex-start;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.stats-summary-item { flex: 1; }
+.stats-summary-divider { width: 1px; background: var(--border); align-self: stretch; margin: 0 16px; }
+
+.stat-val { font-size: 20px; font-weight: 500; margin-top: 4px; }
+.stat-val.expense { color: var(--c-expense); }
+.stat-val.income { color: var(--c-income); }
+
+.chart-section {
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.chart-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+/* ── Donut Chart ──────────────────────── */
+.donut-chart { text-align: center; }
+
+.donut-svg { width: 160px; height: 160px; margin-bottom: 12px; }
+.donut-total { font-size: 14px; font-weight: 500; fill: var(--text-primary); }
+.donut-label { font-size: 9px; fill: var(--text-tertiary); }
+
+.donut-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-pct { color: var(--text-tertiary); }
+
+/* ── Ranking ──────────────────────────── */
+.ranking-list { display: flex; flex-direction: column; gap: 12px; }
+
+.ranking-item {}
+
+.ranking-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.ranking-rank { color: var(--text-tertiary); font-weight: 500; min-width: 22px; }
+.ranking-name { flex: 1; }
+.ranking-amount { color: var(--text-secondary); font-weight: 500; }
+
+.ranking-bar-bg {
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ranking-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* ── Trend Line ───────────────────────── */
+.trend-chart { overflow-x: auto; }
+.trend-svg { width: 100%; min-width: 280px; }
+.trend-value { font-size: 8px; fill: var(--text-secondary); font-weight: 500; }
+.trend-label { font-size: 7px; fill: var(--text-tertiary); }
+
+/* ── Settings Extras ──────────────────── */
+.settings-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.settings-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.settings-input:focus { border-color: var(--c-accent); }
+
+.settings-save-btn {
+  padding: 10px 16px;
+  background: var(--c-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+.settings-toast {
+  padding: 10px;
+  background: #E1F5EE;
+  color: #085041;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* ── Number input arrows removal ──────── */
+.settings-input::-webkit-inner-spin-button,
+.settings-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.settings-input[type="number"] { -moz-appearance: textfield; }

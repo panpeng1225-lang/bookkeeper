@@ -5,12 +5,15 @@ import HomePage from './pages/HomePage';
 import AddPage from './pages/AddPage';
 import ListPage from './pages/ListPage';
 import SettingsPage from './pages/SettingsPage';
+import StatsPage from './pages/StatsPage';
+import ScanPage from './pages/ScanPage';
 
 export default function App() {
   const [page, setPage] = useState('home');
   const [records, setRecords] = useState([]);
   const [editRecord, setEditRecord] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [scanResult, setScanResult] = useState(null);
 
   // 设置
   const [defaultCurrency, setDefaultCurrency] = useState(() => {
@@ -41,6 +44,7 @@ export default function App() {
       }
       await loadRecords();
       setEditRecord(null);
+      setScanResult(null);
       setPage('home');
     } catch (err) {
       console.error('Failed to save:', err);
@@ -48,8 +52,8 @@ export default function App() {
     }
   };
 
-  // 删除记录
-  const handleDelete = async (id) => {
+  // 删除记录（从编辑页）
+  const handleDeleteFromEdit = async (id) => {
     if (!confirm('确认删除？')) return;
     try {
       await deleteRecord(id);
@@ -62,15 +66,38 @@ export default function App() {
     }
   };
 
+  // 删除记录（从滑动操作）
+  const handleDeleteDirect = async (id) => {
+    if (!confirm('确认删除？')) return;
+    try {
+      await deleteRecord(id);
+      await loadRecords();
+    } catch (err) {
+      console.error('Failed to delete:', err);
+      alert('删除失败，请重试');
+    }
+  };
+
   // 编辑
   const handleEdit = (record) => {
     setEditRecord(record);
+    setScanResult(null);
+    setPage('add');
+  };
+
+  // AI 识别结果 → 跳到记一笔页面预填
+  const handleScanResult = (result) => {
+    setScanResult(result);
+    setEditRecord(null);
     setPage('add');
   };
 
   // 导航
   const navigate = (target) => {
-    if (target === 'add') setEditRecord(null);
+    if (target === 'add') {
+      setEditRecord(null);
+      setScanResult(null);
+    }
     setPage(target);
   };
 
@@ -90,9 +117,10 @@ export default function App() {
         <AddPage
           defaultCurrency={defaultCurrency}
           editRecord={editRecord}
+          scanResult={scanResult}
           onSave={handleSave}
-          onDelete={handleDelete}
-          onCancel={() => { setEditRecord(null); setPage('home'); }}
+          onDelete={handleDeleteFromEdit}
+          onCancel={() => { setEditRecord(null); setScanResult(null); setPage('home'); }}
         />
       );
     case 'list':
@@ -100,6 +128,21 @@ export default function App() {
         <ListPage
           records={records}
           onEdit={handleEdit}
+          onDelete={handleDeleteDirect}
+          onBack={() => setPage('home')}
+        />
+      );
+    case 'stats':
+      return (
+        <StatsPage
+          records={records}
+          onBack={() => setPage('home')}
+        />
+      );
+    case 'scan':
+      return (
+        <ScanPage
+          onResult={handleScanResult}
           onBack={() => setPage('home')}
         />
       );
@@ -118,6 +161,7 @@ export default function App() {
           defaultCurrency={defaultCurrency}
           onNavigate={navigate}
           onEdit={handleEdit}
+          onDelete={handleDeleteDirect}
           onSettings={() => setPage('settings')}
         />
       );

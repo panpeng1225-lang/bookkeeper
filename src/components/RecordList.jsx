@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import RecordItem from './RecordItem';
+import SwipeableItem from './SwipeableItem';
 import { formatAmount } from '../config/currencies';
 
-export default function RecordList({ records, onEdit }) {
+export default function RecordList({ records, onEdit, onDelete }) {
   const grouped = useMemo(() => {
     const sorted = [...records].sort((a, b) => {
       if (a.date !== b.date) return b.date.localeCompare(a.date);
@@ -40,7 +41,13 @@ export default function RecordList({ records, onEdit }) {
               <span className="day-total">支出 {totalStr}</span>
             </div>
             {items.map(r => (
-              <RecordItem key={r.id} record={r} onClick={() => onEdit(r)} />
+              <SwipeableItem
+                key={r.id}
+                onEdit={() => onEdit(r)}
+                onDelete={() => onDelete(r.id)}
+              >
+                <RecordItem record={r} />
+              </SwipeableItem>
             ))}
           </div>
         );

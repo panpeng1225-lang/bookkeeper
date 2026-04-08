@@ -6,7 +6,7 @@ export default function RecordItem({ record, onClick }) {
   const isIncome = record.category === 'income';
 
   return (
-    <div className="record-item" onClick={onClick}>
+    <div className="record-item" onClick={onClick} role="button">
       <span className="record-icon" style={{ background: cat.bg }}>{cat.icon}</span>
       <div className="record-info">
         <div className="record-label">{cat.label}{record.note ? ` · ${record.note}` : ''}</div>
