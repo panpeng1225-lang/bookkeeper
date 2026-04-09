@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import DonutChart from '../components/Charts/DonutChart';
 import RankingList from '../components/Charts/RankingList';
 import TrendLine from '../components/Charts/TrendLine';
+import BottomNav from '../components/BottomNav';
 import { convertAmount, getExchangeRate } from '../services/exchangeService';
 import { formatAmount } from '../config/currencies';
 
@@ -33,7 +34,7 @@ function getDateRange(rangeId) {
   }
 }
 
-export default function StatsPage({ records, onBack }) {
+export default function StatsPage({ records, onBack, onNavigate, onCameraCapture }) {
   const [rangeId, setRangeId] = useState('month');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
@@ -68,9 +69,9 @@ export default function StatsPage({ records, onBack }) {
   }, [filtered]);
 
   return (
-    <div className="page">
+    <div className="page has-bottom-nav">
       <div className="nav-bar">
-        <span className="nav-back" onClick={onBack}>← 返回</span>
+        <span style={{ width: 48 }} />
         <span className="nav-title">统计</span>
         <span style={{ width: 48 }} />
       </div>
@@ -147,6 +148,8 @@ export default function StatsPage({ records, onBack }) {
           <TrendLine records={filtered} formatFn={fmt} />
         </div>
       </div>
+
+      <BottomNav activePage="stats" onNavigate={onNavigate} onCameraCapture={onCameraCapture} />
     </div>
   );
 }

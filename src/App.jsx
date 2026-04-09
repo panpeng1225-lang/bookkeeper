@@ -152,6 +152,8 @@ export default function App() {
         <StatsPage
           records={records}
           onBack={() => setPage('home')}
+          onNavigate={navigate}
+          onCameraCapture={handleCameraCapture}
         />
       );
     case 'scan':

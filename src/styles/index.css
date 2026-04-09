@@ -53,10 +53,27 @@ body {
 }
 
 .nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 14px;
-  color: var(--text-secondary);
+  font-weight: 500;
+  color: var(--c-accent);
   cursor: pointer;
   min-width: 48px;
+  padding: 6px 12px 6px 8px;
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  transition: background 0.15s;
+}
+
+.nav-back:active {
+  background: var(--border);
+}
+
+.nav-back-arrow {
+  width: 18px;
+  height: 18px;
 }
 
 .nav-title {
