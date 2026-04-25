@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_CURRENCY } from './config/currencies';
 import { getRecords, addRecord, updateRecord, deleteRecord, getSettings, saveSettings } from './services/recordService';
-import { recognizeBill } from './services/ocrService';
 import { getVisionApiKey } from './config/deepseek';
 import HomePage from './pages/HomePage';
 import AddPage from './pages/AddPage';

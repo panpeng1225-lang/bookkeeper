@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ALL_CATEGORIES } from '../config/categories';
 import { CURRENCIES } from '../config/currencies';
 
@@ -6,23 +6,13 @@ export default function RecordForm({ defaultCurrency, initialData, onSave, onDel
   const isEdit = !!initialData;
   const now = new Date();
 
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [currency, setCurrency] = useState(defaultCurrency);
-  const [note, setNote] = useState('');
-  const [date, setDate] = useState(now.toISOString().slice(0, 10));
-  const [time, setTime] = useState(now.toTimeString().slice(0, 5));
-
-  useEffect(() => {
-    if (initialData) {
-      setAmount(String(initialData.amount));
-      setCategory(initialData.category);
-      setCurrency(initialData.currency || defaultCurrency);
-      setNote(initialData.note || '');
-      setDate(initialData.date);
-      setTime(initialData.time || '00:00');
-    }
-  }, [initialData, defaultCurrency]);
+  const [amount, setAmount] = useState(() => initialData ? String(initialData.amount) : '');
+  const [category, setCategory] = useState(() => initialData?.category || '');
+  const [currency, setCurrency] = useState(() => initialData?.currency || defaultCurrency);
+  const [note, setNote] = useState(() => initialData?.note || '');
+  const [tag, setTag] = useState(() => initialData?.category === 'income' ? '' : (initialData?.tag || ''));
+  const [date, setDate] = useState(() => initialData?.date || now.toISOString().slice(0, 10));
+  const [time, setTime] = useState(() => initialData?.time || now.toTimeString().slice(0, 5));
 
   const curInfo = CURRENCIES[currency];
   const canSave = amount && parseFloat(amount) > 0 && category;
@@ -34,9 +24,15 @@ export default function RecordForm({ defaultCurrency, initialData, onSave, onDel
       category,
       currency,
       note,
+      tag: category === 'income' ? '' : tag,
       date,
       time,
     });
+  };
+
+  const handleCategoryChange = (nextCategory) => {
+    setCategory(nextCategory);
+    if (nextCategory === 'income') setTag('');
   };
 
   return (
@@ -101,7 +97,7 @@ export default function RecordForm({ defaultCurrency, initialData, onSave, onDel
               <div
                 key={c.id}
                 className={`category-item ${category === c.id ? 'selected' : ''}`}
-                onClick={() => setCategory(c.id)}
+                onClick={() => handleCategoryChange(c.id)}
               >
                 <div
                   className="category-icon"
@@ -133,6 +129,33 @@ export default function RecordForm({ defaultCurrency, initialData, onSave, onDel
             onChange={e => setNote(e.target.value)}
           />
         </div>
+
+        {category !== 'income' && (
+          <div className="tag-section">
+            <div className="field-label">这笔钱</div>
+            <div className="tag-selector">
+              {[
+                { value: '', label: '无标签' },
+                { value: '值得花', label: '✓ 值得花' },
+                { value: '不该花', label: '✗ 不该花' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={[
+                    'tag-btn',
+                    tag === opt.value ? 'tag-active' : '',
+                    opt.value === '值得花' ? 'tag-worth' : '',
+                    opt.value === '不该花' ? 'tag-regret' : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={() => setTag(prev => prev === opt.value && opt.value !== '' ? '' : opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <button className={`save-btn ${canSave ? '' : 'disabled'}`} onClick={handleSave}>
           {isEdit ? '保存修改' : '保存'}

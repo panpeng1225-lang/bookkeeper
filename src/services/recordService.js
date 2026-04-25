@@ -20,6 +20,7 @@ async function addToSupabase(record) {
       category: record.category,
       currency: record.currency,
       note: record.note,
+      tag: record.category === 'income' ? '' : (record.tag || ''),
       record_date: record.date,
       record_time: record.time,
     }])
@@ -37,6 +38,7 @@ async function updateInSupabase(id, record) {
       category: record.category,
       currency: record.currency,
       note: record.note,
+      tag: record.category === 'income' ? '' : (record.tag || ''),
       record_date: record.date,
       record_time: record.time,
     })
@@ -60,6 +62,7 @@ function normalize(row) {
     category: row.category,
     currency: row.currency || 'VND',
     note: row.note || '',
+    tag: row.tag || '',
     date: row.record_date,
     time: row.record_time || '00:00',
     createdAt: row.created_at,
@@ -88,13 +91,18 @@ const useSupabase = !!supabase;
 
 export async function getRecords() {
   if (useSupabase) return fetchAllFromSupabase();
-  return loadFromLS();
+  return loadFromLS().map(record => ({ ...record, tag: record.tag || '' }));
 }
 
 export async function addRecord(record) {
   if (useSupabase) return addToSupabase(record);
   const records = loadFromLS();
-  const newRec = { ...record, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+  const newRec = {
+    ...record,
+    tag: record.category === 'income' ? '' : (record.tag || ''),
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
   records.unshift(newRec);
   saveToLS(records);
   return newRec;
@@ -105,7 +113,11 @@ export async function updateRecord(id, record) {
   const records = loadFromLS();
   const idx = records.findIndex(r => r.id === id);
   if (idx >= 0) {
-    records[idx] = { ...records[idx], ...record };
+    records[idx] = {
+      ...records[idx],
+      ...record,
+      tag: record.category === 'income' ? '' : (record.tag || ''),
+    };
     saveToLS(records);
     return records[idx];
   }

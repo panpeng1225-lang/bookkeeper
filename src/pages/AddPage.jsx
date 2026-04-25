@@ -10,9 +10,11 @@ export default function AddPage({ defaultCurrency, editRecord, scanResult, onSav
     date: scanResult.date || new Date().toISOString().slice(0, 10),
     time: scanResult.time || new Date().toTimeString().slice(0, 5),
   } : null;
+  const formKey = editRecord?.id || (scanResult ? `scan-${scanResult.amount}-${scanResult.date}-${scanResult.time}` : 'new');
 
   return (
     <RecordForm
+      key={formKey}
       defaultCurrency={defaultCurrency}
       initialData={editRecord || prefill}
       onSave={onSave}

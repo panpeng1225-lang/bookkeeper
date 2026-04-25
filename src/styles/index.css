@@ -205,9 +205,50 @@ body {
 .record-label {
   font-size: 14px;
   font-weight: 500;
+}
+
+.record-label-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.record-cat-name {
+  display: block;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.record-note-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.record-tag-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.record-tag-badge.tag-worth {
+  background: #e8f7ef;
+  color: #1e8449;
+}
+
+.record-tag-badge.tag-regret {
+  background: #fdf0e8;
+  color: #ca6f1e;
 }
 
 .record-date { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
@@ -396,6 +437,52 @@ body {
 
 .note-input:focus { border-color: var(--c-accent); }
 .note-input::placeholder { color: var(--text-tertiary); }
+
+/* Tag 选择器 */
+.tag-section {
+  margin-bottom: 20px;
+}
+
+.tag-selector {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tag-btn {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tag-btn.tag-active {
+  border-width: 2px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tag-btn.tag-worth.tag-active {
+  background: #e8f7ef;
+  border-color: #27ae60;
+  border-width: 2px;
+  color: #1e8449;
+  font-weight: 600;
+}
+
+.tag-btn.tag-regret.tag-active {
+  background: #fdf0e8;
+  border-color: #e67e22;
+  border-width: 2px;
+  color: #ca6f1e;
+  font-weight: 600;
+}
 
 /* 按钮 */
 .save-btn {
@@ -716,6 +803,74 @@ body {
   color: white;
 }
 
+.stats-search-bar {
+  position: relative;
+  margin: 12px 0 0;
+}
+
+.stats-search-input {
+  width: 100%;
+  padding: 9px 36px 9px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-secondary);
+  font-size: 14px;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.stats-search-input:focus {
+  border-color: var(--c-accent);
+}
+
+.stats-search-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+}
+
+.tag-filter-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 0 0;
+}
+
+.tag-filter-btn {
+  padding: 5px 14px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tag-filter-btn.active {
+  border-width: 2px;
+  font-weight: 600;
+}
+
+.tag-filter-btn.worth.active {
+  background: #e8f7ef;
+  border-color: #27ae60;
+  color: #1e8449;
+}
+
+.tag-filter-btn.regret.active {
+  background: #fdf0e8;
+  border-color: #e67e22;
+  color: #ca6f1e;
+}
+
 .stats-summary {
   display: flex;
   align-items: flex-start;
@@ -747,6 +902,89 @@ body {
   padding: 24px;
   color: var(--text-tertiary);
   font-size: 13px;
+}
+
+.detail-section {
+  margin: 16px 0 0;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.detail-section-title {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.detail-item-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-item-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.detail-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-item-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-item-date {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 1px;
+}
+
+.detail-item-amount {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.detail-item-amount.expense { color: var(--c-expense); }
+.detail-item-amount.income  { color: var(--c-income); }
+
+.detail-summary {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
 /* ── Donut Chart ──────────────────────── */
