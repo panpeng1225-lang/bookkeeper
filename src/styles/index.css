@@ -911,6 +911,10 @@ body {
   overflow: hidden;
 }
 
+.detail-section-top {
+  margin: 12px 0 16px;
+}
+
 .detail-section-title {
   padding: 12px 16px;
   font-size: 14px;

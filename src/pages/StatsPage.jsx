@@ -72,13 +72,13 @@ export default function StatsPage({ records, onNavigate, onCameraCapture }) {
   }, [filtered]);
 
   const detailRecords = useMemo(() => {
-    const keyword = searchText.trim();
+    const keyword = searchText.trim().toLowerCase();
     if (tagFilter === '' && keyword === '') return [];
 
     return filtered
       .filter(r => {
         const tagMatch = tagFilter === '' || r.tag === tagFilter;
-        const noteMatch = keyword === '' || (r.note || '').includes(keyword);
+        const noteMatch = keyword === '' || (r.note || '').toLowerCase().includes(keyword);
         return tagMatch && noteMatch;
       })
       .sort((a, b) => {
@@ -179,47 +179,18 @@ export default function StatsPage({ records, onNavigate, onCameraCapture }) {
                 opt.value === '值得花' ? 'worth' : '',
                 opt.value === '不该花' ? 'regret' : '',
               ].filter(Boolean).join(' ')}
-              onClick={() => setTagFilter(opt.value)}
+              onClick={() => setTagFilter(prev => prev === opt.value ? '' : opt.value)}
             >
               {opt.label}
             </button>
           ))}
         </div>
 
-        {/* Summary */}
-        <div className="stats-summary">
-          <div className="stats-summary-item">
-            <div className="stat-label">支出</div>
-            <div className="stat-val expense">{fmt(totals.expense)}</div>
-          </div>
-          <div className="stats-summary-divider" />
-          <div className="stats-summary-item">
-            <div className="stat-label">收入</div>
-            <div className="stat-val income">{fmt(totals.income)}</div>
-          </div>
-        </div>
-
-        {/* Charts */}
-        <div className="chart-section">
-          <div className="chart-title">支出构成</div>
-          <DonutChart records={filtered} formatFn={fmt} />
-        </div>
-
-        <div className="chart-section">
-          <div className="chart-title">分类排行</div>
-          <RankingList records={filtered} formatFn={fmt} />
-        </div>
-
-        <div className="chart-section">
-          <div className="chart-title">月度趋势</div>
-          <TrendLine records={filtered} formatFn={fmt} />
-        </div>
-
         {showDetails && (
-          <div className="detail-section">
+          <div className="detail-section detail-section-top">
             <div className="detail-section-title">筛选明细</div>
             {detailRecords.length === 0 ? (
-              <div className="detail-empty">暂无符合条件的记录</div>
+              <div className="detail-empty">当前时间范围内暂无符合条件的记录</div>
             ) : (
               <>
                 {detailRecords.map(r => {
@@ -256,6 +227,36 @@ export default function StatsPage({ records, onNavigate, onCameraCapture }) {
             )}
           </div>
         )}
+
+        {/* Summary */}
+        <div className="stats-summary">
+          <div className="stats-summary-item">
+            <div className="stat-label">支出</div>
+            <div className="stat-val expense">{fmt(totals.expense)}</div>
+          </div>
+          <div className="stats-summary-divider" />
+          <div className="stats-summary-item">
+            <div className="stat-label">收入</div>
+            <div className="stat-val income">{fmt(totals.income)}</div>
+          </div>
+        </div>
+
+        {/* Charts */}
+        <div className="chart-section">
+          <div className="chart-title">支出构成</div>
+          <DonutChart records={filtered} formatFn={fmt} />
+        </div>
+
+        <div className="chart-section">
+          <div className="chart-title">分类排行</div>
+          <RankingList records={filtered} formatFn={fmt} />
+        </div>
+
+        <div className="chart-section">
+          <div className="chart-title">月度趋势</div>
+          <TrendLine records={filtered} formatFn={fmt} />
+        </div>
+
       </div>
 
       <BottomNav activePage="stats" onNavigate={onNavigate} onCameraCapture={onCameraCapture} />
