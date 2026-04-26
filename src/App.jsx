@@ -13,9 +13,18 @@ export default function App() {
   const [page, setPage] = useState('home');
   const [records, setRecords] = useState([]);
   const [editRecord, setEditRecord] = useState(null);
+  const [editReturnPage, setEditReturnPage] = useState('home');
   const [loading, setLoading] = useState(true);
   const [scanResult, setScanResult] = useState(null);
   const [pendingPhoto, setPendingPhoto] = useState(null);
+  const [statsViewState, setStatsViewState] = useState({
+    rangeId: 'month',
+    customStart: '',
+    customEnd: '',
+    displayCurrency: 'VND',
+    searchText: '',
+    tagFilter: '',
+  });
 
   // 设置
   const [defaultCurrency, setDefaultCurrency] = useState(() => {
@@ -46,8 +55,9 @@ export default function App() {
       }
       await loadRecords();
       setEditRecord(null);
+      setEditReturnPage('home');
       setScanResult(null);
-      setPage('home');
+      setPage(editRecord && editReturnPage === 'stats' ? 'stats' : 'home');
     } catch (err) {
       console.error('Failed to save:', err);
       alert('保存失败，请重试');
@@ -61,7 +71,8 @@ export default function App() {
       await deleteRecord(id);
       await loadRecords();
       setEditRecord(null);
-      setPage('home');
+      setPage(editReturnPage === 'stats' ? 'stats' : 'home');
+      setEditReturnPage('home');
     } catch (err) {
       console.error('Failed to delete:', err);
       alert('删除失败，请重试');
@@ -81,8 +92,9 @@ export default function App() {
   };
 
   // 编辑
-  const handleEdit = (record) => {
+  const handleEdit = (record, options = {}) => {
     setEditRecord(record);
+    setEditReturnPage(options.returnPage || 'home');
     setScanResult(null);
     setPage('add');
   };
@@ -98,6 +110,7 @@ export default function App() {
   const navigate = (target) => {
     if (target === 'add') {
       setEditRecord(null);
+      setEditReturnPage('home');
       setScanResult(null);
     }
     setPage(target);
@@ -134,7 +147,13 @@ export default function App() {
           scanResult={scanResult}
           onSave={handleSave}
           onDelete={handleDeleteFromEdit}
-          onCancel={() => { setEditRecord(null); setScanResult(null); setPage('home'); }}
+          onCancel={() => {
+            const targetPage = editRecord && editReturnPage === 'stats' ? 'stats' : 'home';
+            setEditRecord(null);
+            setEditReturnPage('home');
+            setScanResult(null);
+            setPage(targetPage);
+          }}
         />
       );
     case 'list':
@@ -152,8 +171,10 @@ export default function App() {
           records={records}
           onNavigate={navigate}
           onCameraCapture={handleCameraCapture}
-          onEdit={handleEdit}
+          onEdit={(record) => handleEdit(record, { returnPage: 'stats' })}
           onDelete={handleDeleteDirect}
+          statsViewState={statsViewState}
+          onStatsViewChange={setStatsViewState}
         />
       );
     case 'scan':

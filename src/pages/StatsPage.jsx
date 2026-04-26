@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import DonutChart from '../components/Charts/DonutChart';
 import RankingList from '../components/Charts/RankingList';
 import TrendLine from '../components/Charts/TrendLine';
@@ -36,13 +36,27 @@ function getDateRange(rangeId) {
   }
 }
 
-export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit, onDelete }) {
-  const [rangeId, setRangeId] = useState('month');
-  const [customStart, setCustomStart] = useState('');
-  const [customEnd, setCustomEnd] = useState('');
-  const [displayCurrency, setDisplayCurrency] = useState('VND');
-  const [searchText, setSearchText] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
+export default function StatsPage({
+  records,
+  onNavigate,
+  onCameraCapture,
+  onEdit,
+  onDelete,
+  statsViewState,
+  onStatsViewChange,
+}) {
+  const {
+    rangeId,
+    customStart,
+    customEnd,
+    displayCurrency,
+    searchText,
+    tagFilter,
+  } = statsViewState;
+
+  const updateStatsView = (patch) => {
+    onStatsViewChange(prev => ({ ...prev, ...patch }));
+  };
 
   const rate = getExchangeRate();
 
@@ -115,12 +129,12 @@ export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit
           <div className="currency-toggle">
             {['VND', 'RMB'].map(c => (
               <div
-                key={c}
-                className={`currency-btn ${displayCurrency === c ? 'active' : ''}`}
-                onClick={() => setDisplayCurrency(c)}
-              >
-                {c}
-              </div>
+              key={c}
+              className={`currency-btn ${displayCurrency === c ? 'active' : ''}`}
+              onClick={() => updateStatsView({ displayCurrency: c })}
+            >
+              {c}
+            </div>
             ))}
           </div>
         </div>
@@ -131,7 +145,7 @@ export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit
             <div
               key={r.id}
               className={`range-btn ${rangeId === r.id ? 'active' : ''}`}
-              onClick={() => setRangeId(r.id)}
+              onClick={() => updateStatsView({ rangeId: r.id })}
             >
               {r.label}
             </div>
@@ -142,11 +156,11 @@ export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit
           <div className="datetime-row" style={{ marginBottom: 12 }}>
             <div className="datetime-field">
               <div className="field-label">起始</div>
-              <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} />
+              <input type="date" value={customStart} onChange={e => updateStatsView({ customStart: e.target.value })} />
             </div>
             <div className="datetime-field">
               <div className="field-label">结束</div>
-              <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} />
+              <input type="date" value={customEnd} onChange={e => updateStatsView({ customEnd: e.target.value })} />
             </div>
           </div>
         )}
@@ -157,11 +171,11 @@ export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit
             type="text"
             placeholder="搜索备注关键词…"
             value={searchText}
-            onChange={e => setSearchText(e.target.value)}
+            onChange={e => updateStatsView({ searchText: e.target.value })}
             className="stats-search-input"
           />
           {searchText && (
-            <button type="button" className="stats-search-clear" onClick={() => setSearchText('')}>✕</button>
+            <button type="button" className="stats-search-clear" onClick={() => updateStatsView({ searchText: '' })}>✕</button>
           )}
         </div>
 
@@ -180,7 +194,7 @@ export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit
                 opt.value === '值得花' ? 'worth' : '',
                 opt.value === '不该花' ? 'regret' : '',
               ].filter(Boolean).join(' ')}
-              onClick={() => setTagFilter(prev => prev === opt.value ? '' : opt.value)}
+              onClick={() => updateStatsView({ tagFilter: tagFilter === opt.value ? '' : opt.value })}
             >
               {opt.label}
             </button>
