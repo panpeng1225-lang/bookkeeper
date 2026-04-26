@@ -1,16 +1,30 @@
-# React + Vite
+# Bookkeeper
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+轻量记账 PWA，支持双币种（`VND` / `RMB`）、账单识别、统计分析。
 
-Currently, two official plugins are available:
+当前线上地址：
+[https://bookkeeper-red.vercel.app](https://bookkeeper-red.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+代码仓库：
+[https://github.com/panpeng1225-lang/bookkeeper](https://github.com/panpeng1225-lang/bookkeeper)
 
-## React Compiler
+## 常用命令
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm.cmd ci
+npm.cmd run dev
+npm.cmd run build
+npm.cmd run lint
+```
 
-## Expanding the ESLint configuration
+## 部署流程
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+完整流程见：
+[DEPLOYMENT_WORKFLOW.md](/C:/Users/41434/Desktop/spending_record_App/bookkeeper/DEPLOYMENT_WORKFLOW.md)
+
+这份文档记录了：
+
+- 本地修改后的标准验证顺序
+- `git push origin main` 后如何确认 Vercel 是否真的切到最新部署
+- 如果线上域名没有更新，如何在 Vercel 手动 `Create Deployment`
+- Supabase schema 变更需要同步执行的 SQL
