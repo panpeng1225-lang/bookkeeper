@@ -150,9 +150,10 @@ export default function App() {
       return (
         <StatsPage
           records={records}
-          onBack={() => setPage('home')}
           onNavigate={navigate}
           onCameraCapture={handleCameraCapture}
+          onEdit={handleEdit}
+          onDelete={handleDeleteDirect}
         />
       );
     case 'scan':

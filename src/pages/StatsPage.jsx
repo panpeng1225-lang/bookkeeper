@@ -3,6 +3,7 @@ import DonutChart from '../components/Charts/DonutChart';
 import RankingList from '../components/Charts/RankingList';
 import TrendLine from '../components/Charts/TrendLine';
 import BottomNav from '../components/BottomNav';
+import SwipeableItem from '../components/SwipeableItem';
 import { convertAmount, getExchangeRate } from '../services/exchangeService';
 import { formatAmount } from '../config/currencies';
 import { CATEGORY_MAP } from '../config/categories';
@@ -35,7 +36,7 @@ function getDateRange(rangeId) {
   }
 }
 
-export default function StatsPage({ records, onNavigate, onCameraCapture }) {
+export default function StatsPage({ records, onNavigate, onCameraCapture, onEdit, onDelete }) {
   const [rangeId, setRangeId] = useState('month');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
@@ -198,24 +199,30 @@ export default function StatsPage({ records, onNavigate, onCameraCapture }) {
                   const isIncome = r.category === 'income';
 
                   return (
-                    <div key={r.id} className="detail-item">
-                      <div className="detail-item-left">
-                        <div className="detail-item-top">
-                          <span>{cat.icon}</span>
-                          <span className="detail-item-name">{cat.label}</span>
-                          {r.tag && (
-                            <span className={`record-tag-badge ${r.tag === '值得花' ? 'tag-worth' : 'tag-regret'}`}>
-                              {r.tag === '值得花' ? '✓' : '✗'} {r.tag}
-                            </span>
-                          )}
+                    <SwipeableItem
+                      key={r.id}
+                      onEdit={() => onEdit?.(r)}
+                      onDelete={() => onDelete?.(r.id)}
+                    >
+                      <div className="detail-item">
+                        <div className="detail-item-left">
+                          <div className="detail-item-top">
+                            <span>{cat.icon}</span>
+                            <span className="detail-item-name">{cat.label}</span>
+                            {r.tag && (
+                              <span className={`record-tag-badge ${r.tag === '值得花' ? 'tag-worth' : 'tag-regret'}`}>
+                                {r.tag === '值得花' ? '✓' : '✗'} {r.tag}
+                              </span>
+                            )}
+                          </div>
+                          {r.note && <div className="detail-item-note">{r.note}</div>}
+                          <div className="detail-item-date">{r.date} {r.time || '00:00'}</div>
                         </div>
-                        {r.note && <div className="detail-item-note">{r.note}</div>}
-                        <div className="detail-item-date">{r.date} {r.time || '00:00'}</div>
+                        <div className={`detail-item-amount ${isIncome ? 'income' : 'expense'}`}>
+                          {isIncome ? '+' : '-'}{fmt(r._converted)}
+                        </div>
                       </div>
-                      <div className={`detail-item-amount ${isIncome ? 'income' : 'expense'}`}>
-                        {isIncome ? '+' : '-'}{fmt(r._converted)}
-                      </div>
-                    </div>
+                    </SwipeableItem>
                   );
                 })}
                 <div className="detail-summary">

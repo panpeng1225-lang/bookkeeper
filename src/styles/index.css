@@ -21,14 +21,18 @@ body {
   background: var(--bg-secondary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
 .page {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100dvh;
+  height: 100dvh;
   background: var(--bg-primary);
   padding-bottom: 80px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .loading {
@@ -281,8 +285,11 @@ body {
 .form-page {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100dvh;
+  height: 100dvh;
   background: var(--bg-primary);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .form-body { padding: 16px; }
@@ -605,6 +612,7 @@ body {
   border-top: 1px solid var(--border);
   padding: 6px 0 env(safe-area-inset-bottom, 8px);
   z-index: 20;
+  will-change: transform;
 }
 
 .nav-item {
