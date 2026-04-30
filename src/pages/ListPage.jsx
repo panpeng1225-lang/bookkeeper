@@ -5,11 +5,17 @@ export default function ListPage({ records, onEdit, onDelete, onBack, listViewSt
   const pageRef = useRef(null);
 
   useEffect(() => {
-    if (!listViewState?.restoreRecordId && !listViewState?.restoreDate) return;
+    if (listViewState?.scrollTop == null && !listViewState?.restoreRecordId && !listViewState?.restoreDate) return;
 
     const frameId = requestAnimationFrame(() => {
       const page = pageRef.current;
       if (!page) return;
+
+      if (listViewState?.scrollTop != null) {
+        page.scrollTo({ top: listViewState.scrollTop, behavior: 'auto' });
+        onRestoreComplete?.();
+        return;
+      }
 
       let target = null;
 
@@ -34,6 +40,12 @@ export default function ListPage({ records, onEdit, onDelete, onBack, listViewSt
     return () => cancelAnimationFrame(frameId);
   }, [records, listViewState, onRestoreComplete]);
 
+  const handleEditFromList = (record) => {
+    onEdit?.(record, {
+      scrollTop: pageRef.current?.scrollTop ?? 0,
+    });
+  };
+
   return (
     <div className="page" ref={pageRef}>
       <div className="nav-bar">
@@ -41,7 +53,7 @@ export default function ListPage({ records, onEdit, onDelete, onBack, listViewSt
         <span className="nav-title">全部记录</span>
         <span style={{ width: 48 }} />
       </div>
-      <RecordList records={records} onEdit={onEdit} onDelete={onDelete} />
+      <RecordList records={records} onEdit={handleEditFromList} onDelete={onDelete} />
     </div>
   );
 }

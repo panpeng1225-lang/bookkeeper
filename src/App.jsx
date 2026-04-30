@@ -15,6 +15,7 @@ export default function App() {
   const [editRecord, setEditRecord] = useState(null);
   const [editReturnPage, setEditReturnPage] = useState('home');
   const [listViewState, setListViewState] = useState({
+    scrollTop: null,
     restoreRecordId: null,
     restoreDate: '',
   });
@@ -62,10 +63,11 @@ export default function App() {
       }
       await loadRecords();
       if (returnPage === 'list' && restoreRecordId) {
-        setListViewState({
+        setListViewState(prev => ({
+          ...prev,
           restoreRecordId,
           restoreDate: data.date || '',
-        });
+        }));
       }
       setEditRecord(null);
       setEditReturnPage('home');
@@ -84,10 +86,11 @@ export default function App() {
       await deleteRecord(id);
       await loadRecords();
       if (editReturnPage === 'list') {
-        setListViewState({
+        setListViewState(prev => ({
+          ...prev,
           restoreRecordId: null,
           restoreDate: editRecord?.date || '',
-        });
+        }));
       }
       setEditRecord(null);
       setPage(editReturnPage);
@@ -112,6 +115,13 @@ export default function App() {
 
   // 编辑
   const handleEdit = (record, options = {}) => {
+    if (options.returnPage === 'list') {
+      setListViewState(prev => ({
+        scrollTop: options.scrollTop ?? prev.scrollTop,
+        restoreRecordId: record.id,
+        restoreDate: record.date || '',
+      }));
+    }
     setEditRecord(record);
     setEditReturnPage(options.returnPage || 'home');
     setScanResult(null);
@@ -169,10 +179,11 @@ export default function App() {
           onCancel={() => {
             const targetPage = editRecord ? editReturnPage : 'home';
             if (targetPage === 'list' && editRecord) {
-              setListViewState({
+              setListViewState(prev => ({
+                ...prev,
                 restoreRecordId: editRecord.id,
                 restoreDate: editRecord.date || '',
-              });
+              }));
             }
             setEditRecord(null);
             setEditReturnPage('home');
@@ -185,11 +196,12 @@ export default function App() {
       return (
         <ListPage
           records={records}
-          onEdit={(record) => handleEdit(record, { returnPage: 'list' })}
+          onEdit={(record, options = {}) => handleEdit(record, { returnPage: 'list', ...options })}
           onDelete={handleDeleteDirect}
           listViewState={listViewState}
           onRestoreComplete={() => {
             setListViewState({
+              scrollTop: null,
               restoreRecordId: null,
               restoreDate: '',
             });
