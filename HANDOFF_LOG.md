@@ -12,9 +12,12 @@
 ### 验证结果
 - `npm.cmd run build` 通过。
 - 首次在受限环境运行时命中过一次 Vite `spawn EPERM`，随后按项目流程在非沙箱环境重跑，构建成功。
+- `npm.cmd run lint` 通过。
 
 ### 部署说明
 - 按 `DEPLOYMENT_WORKFLOW.md` 执行：本地验证 -> Git 提交 -> 推送 `main` -> 检查 Vercel Deployments。
+- 本次发布 commit：`3d36351 fix: restore list return flow after edit`
+- 已推送到 `origin/main`，并从线上生产包中确认包含 `returnPage: 'list'` 修复逻辑。
 - 如果 Vercel 没自动把最新 commit 切成 `Current`，需要在 Vercel 后台手动 `Create Deployment`，并再次确认最新 commit 带有 `Production` 和 `Current` 标记。
 
 ### 本轮风险
