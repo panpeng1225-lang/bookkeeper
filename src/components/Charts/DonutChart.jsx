@@ -24,14 +24,14 @@ export default function DonutChart({ records, formatFn }) {
   // Build donut segments
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
-  let offset = 0;
-  const segments = data.entries.map(entry => {
+  const segments = data.entries.reduce((acc, entry) => {
+    const previous = acc[acc.length - 1];
+    const offset = previous ? previous.offset - previous.dash : 0;
     const pct = entry.amount / data.total;
     const dash = pct * circumference;
-    const seg = { ...entry, pct, dash, offset };
-    offset -= dash;
-    return seg;
-  });
+    acc.push({ ...entry, pct, dash, offset });
+    return acc;
+  }, []);
 
   return (
     <div className="donut-chart">

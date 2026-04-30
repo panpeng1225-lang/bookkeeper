@@ -48,6 +48,8 @@ export default function App() {
   // 保存记录
   const handleSave = async (data) => {
     try {
+      const returnPage = editRecord ? editReturnPage : 'home';
+
       if (editRecord) {
         await updateRecord(editRecord.id, data);
       } else {
@@ -57,7 +59,7 @@ export default function App() {
       setEditRecord(null);
       setEditReturnPage('home');
       setScanResult(null);
-      setPage(editRecord && editReturnPage === 'stats' ? 'stats' : 'home');
+      setPage(returnPage);
     } catch (err) {
       console.error('Failed to save:', err);
       alert('保存失败，请重试');
@@ -71,7 +73,7 @@ export default function App() {
       await deleteRecord(id);
       await loadRecords();
       setEditRecord(null);
-      setPage(editReturnPage === 'stats' ? 'stats' : 'home');
+      setPage(editReturnPage);
       setEditReturnPage('home');
     } catch (err) {
       console.error('Failed to delete:', err);
@@ -148,7 +150,7 @@ export default function App() {
           onSave={handleSave}
           onDelete={handleDeleteFromEdit}
           onCancel={() => {
-            const targetPage = editRecord && editReturnPage === 'stats' ? 'stats' : 'home';
+            const targetPage = editRecord ? editReturnPage : 'home';
             setEditRecord(null);
             setEditReturnPage('home');
             setScanResult(null);
@@ -160,7 +162,7 @@ export default function App() {
       return (
         <ListPage
           records={records}
-          onEdit={handleEdit}
+          onEdit={(record) => handleEdit(record, { returnPage: 'list' })}
           onDelete={handleDeleteDirect}
           onBack={() => setPage('home')}
         />

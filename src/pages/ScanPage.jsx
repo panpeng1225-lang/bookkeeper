@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PhotoCapture from '../components/PhotoCapture';
 import { recognizeBill } from '../services/ocrService';
 import { getVisionApiKey } from '../config/deepseek';
@@ -8,15 +8,7 @@ export default function ScanPage({ onResult, onBack, pendingPhoto, onPendingCons
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
 
-  // Auto-trigger when arriving with a photo from camera button
-  useEffect(() => {
-    if (pendingPhoto && !loading) {
-      if (onPendingConsumed) onPendingConsumed();
-      handleCapture(pendingPhoto);
-    }
-  }, []); // run once on mount
-
-  const handleCapture = async (base64) => {
+  const handleCapture = useCallback(async (base64) => {
     const key = getVisionApiKey();
     if (!key) {
       setError('请先在设置中配置豆包 API Key');
@@ -35,7 +27,15 @@ export default function ScanPage({ onResult, onBack, pendingPhoto, onPendingCons
     } finally {
       setLoading(false);
     }
-  };
+  }, [onResult]);
+
+  // Auto-trigger when arriving with a photo from camera button
+  useEffect(() => {
+    if (pendingPhoto && !loading) {
+      onPendingConsumed?.();
+      handleCapture(pendingPhoto);
+    }
+  }, [handleCapture, loading, onPendingConsumed, pendingPhoto]);
 
   const hasKey = !!getVisionApiKey();
 
