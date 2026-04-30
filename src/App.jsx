@@ -14,6 +14,10 @@ export default function App() {
   const [records, setRecords] = useState([]);
   const [editRecord, setEditRecord] = useState(null);
   const [editReturnPage, setEditReturnPage] = useState('home');
+  const [listViewState, setListViewState] = useState({
+    restoreRecordId: null,
+    restoreDate: '',
+  });
   const [loading, setLoading] = useState(true);
   const [scanResult, setScanResult] = useState(null);
   const [pendingPhoto, setPendingPhoto] = useState(null);
@@ -49,6 +53,7 @@ export default function App() {
   const handleSave = async (data) => {
     try {
       const returnPage = editRecord ? editReturnPage : 'home';
+      const restoreRecordId = editRecord?.id || null;
 
       if (editRecord) {
         await updateRecord(editRecord.id, data);
@@ -56,6 +61,12 @@ export default function App() {
         await addRecord(data);
       }
       await loadRecords();
+      if (returnPage === 'list' && restoreRecordId) {
+        setListViewState({
+          restoreRecordId,
+          restoreDate: data.date || '',
+        });
+      }
       setEditRecord(null);
       setEditReturnPage('home');
       setScanResult(null);
@@ -72,6 +83,12 @@ export default function App() {
     try {
       await deleteRecord(id);
       await loadRecords();
+      if (editReturnPage === 'list') {
+        setListViewState({
+          restoreRecordId: null,
+          restoreDate: editRecord?.date || '',
+        });
+      }
       setEditRecord(null);
       setPage(editReturnPage);
       setEditReturnPage('home');
@@ -151,6 +168,12 @@ export default function App() {
           onDelete={handleDeleteFromEdit}
           onCancel={() => {
             const targetPage = editRecord ? editReturnPage : 'home';
+            if (targetPage === 'list' && editRecord) {
+              setListViewState({
+                restoreRecordId: editRecord.id,
+                restoreDate: editRecord.date || '',
+              });
+            }
             setEditRecord(null);
             setEditReturnPage('home');
             setScanResult(null);
@@ -164,6 +187,13 @@ export default function App() {
           records={records}
           onEdit={(record) => handleEdit(record, { returnPage: 'list' })}
           onDelete={handleDeleteDirect}
+          listViewState={listViewState}
+          onRestoreComplete={() => {
+            setListViewState({
+              restoreRecordId: null,
+              restoreDate: '',
+            });
+          }}
           onBack={() => setPage('home')}
         />
       );

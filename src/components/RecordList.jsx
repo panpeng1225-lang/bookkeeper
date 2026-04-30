@@ -35,19 +35,20 @@ export default function RecordList({ records, onEdit, onDelete }) {
         const totalStr = Object.entries(dayTotals).map(([c, v]) => formatAmount(v, c)).join(' + ') || '0';
 
         return (
-          <div key={date}>
+          <div key={date} data-record-date={date}>
             <div className="day-header">
               <span>{date}</span>
               <span className="day-total">支出 {totalStr}</span>
             </div>
             {items.map(r => (
-              <SwipeableItem
-                key={r.id}
-                onEdit={() => onEdit(r)}
-                onDelete={() => onDelete(r.id)}
-              >
-                <RecordItem record={r} />
-              </SwipeableItem>
+              <div key={r.id} data-record-id={r.id}>
+                <SwipeableItem
+                  onEdit={() => onEdit(r)}
+                  onDelete={() => onDelete(r.id)}
+                >
+                  <RecordItem record={r} />
+                </SwipeableItem>
+              </div>
             ))}
           </div>
         );
