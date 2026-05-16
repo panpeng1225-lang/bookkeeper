@@ -294,3 +294,47 @@
   1. `/start`
   2. plain text accounting message
   3. voice accounting message
+
+## 2026-05-17 Production Telegram Webhook Closure
+
+### What Was Finished
+- Pushed Telegram webhook MVP commits to `main`
+  - `a3db87c feat: add telegram webhook mvp flow`
+  - `020ff28 fix: trim telegram deployment env values`
+- Deployed production successfully to:
+  - `https://bookkeeper-red.vercel.app`
+- Confirmed live webhook route:
+  - `GET https://bookkeeper-red.vercel.app/api/telegram-webhook` -> `200`
+- Bound Telegram webhook to:
+  - `https://bookkeeper-red.vercel.app/api/telegram-webhook`
+
+### Production Env Added In Vercel
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_WEBHOOK_SECRET`
+- `TELEGRAM_DEFAULT_CURRENCY`
+- `VOLCENGINE_SPEECH_APPID`
+- `VOLCENGINE_SPEECH_TOKEN`
+
+### Hidden Issue Found During Production Validation
+- Vercel CLI warned that added env values contained trailing newlines.
+- This caused a real bug:
+  - webhook secret comparison returned `401` even though the correct secret was configured
+- Fix applied in `telegram/config.js`:
+  - all relevant env string reads now go through `trim()`
+- After redeploy, validation succeeded:
+  - missing secret -> `401`
+  - correct secret -> `200`
+
+### Current Verified State
+- `npm.cmd run verify:telegram-parser` passed
+- `npm.cmd run lint` passed
+- `npm.cmd run build` passed
+- Production alias updated and serving latest deployment
+- Telegram `getWebhookInfo` confirms webhook URL is now the production Vercel endpoint
+
+### Next Real-World Check
+- User should now send to the real bot in order:
+  1. `/start`
+  2. one plain text accounting message
+  3. one voice accounting message
+- At this point, remaining uncertainty is no longer connection architecture. It is only real-message behavior validation against the live bot and live Volcengine response.
