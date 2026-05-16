@@ -115,6 +115,27 @@ function createRequestId() {
   return crypto.randomUUID();
 }
 
+function extractVolcengineError(payload) {
+  const candidates = [
+    payload?.message,
+    payload?.msg,
+    payload?.error,
+    payload?.err_msg,
+    payload?.result,
+  ];
+
+  for (const candidate of candidates) {
+    const text = typeof candidate === 'string' ? candidate.trim() : '';
+    if (text) return text;
+  }
+
+  try {
+    return JSON.stringify(payload);
+  } catch {
+    return 'unknown error';
+  }
+}
+
 function createVolcengineHeaders(config, requestId) {
   return {
     'Content-Type': 'application/json',
@@ -174,7 +195,7 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
 
   const submitPayload = await submitResponse.json();
   if (String(submitPayload.code) !== '0' || !submitPayload.id) {
-    throw new Error(`Volcengine submit error: ${submitPayload.message || submitPayload.code || 'unknown error'}`);
+    throw new Error(`Volcengine submit error: ${extractVolcengineError(submitPayload)}`);
   }
 
   const startedAt = Date.now();
@@ -205,7 +226,7 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
     }
 
     if (String(queryPayload.code) !== '0') {
-      throw new Error(`Volcengine query error: ${queryPayload.message || queryPayload.code || 'unknown error'}`);
+      throw new Error(`Volcengine query error: ${extractVolcengineError(queryPayload)}`);
     }
 
     const transcript = extractTranscriptFromVolcengineResult(queryPayload);

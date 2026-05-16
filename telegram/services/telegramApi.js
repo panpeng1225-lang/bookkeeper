@@ -83,10 +83,11 @@ export async function downloadTelegramFile(fileId) {
 export async function downloadTelegramFileAsBase64(fileId) {
   const { arrayBuffer, filePath } = await downloadTelegramFile(fileId);
   const extension = path.extname(filePath || '').replace('.', '').toLowerCase();
+  const normalizedFormat = extension === 'oga' ? 'ogg' : extension;
 
   return {
     base64: Buffer.from(arrayBuffer).toString('base64'),
     filePath,
-    format: extension || 'ogg',
+    format: normalizedFormat || 'ogg',
   };
 }
