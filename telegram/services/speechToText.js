@@ -94,17 +94,26 @@ async function transcribeWithOpenAI(filePath, options = {}) {
 }
 
 function extractTranscriptFromVolcengineResult(payload) {
-  const topLevelText = String(payload?.text || '').trim();
+  const topLevelText = String(payload?.text || payload?.resp?.text || '').trim();
   if (topLevelText) return topLevelText;
 
-  const resultList = Array.isArray(payload?.result) ? payload.result : [];
+  const resultList = Array.isArray(payload?.result)
+    ? payload.result
+    : Array.isArray(payload?.resp?.result)
+      ? payload.resp.result
+      : [];
   const listText = resultList
     .map((item) => String(item?.text || '').trim())
     .filter(Boolean)
     .join('');
   if (listText) return listText;
 
-  const utterances = resultList.flatMap((item) => Array.isArray(item?.utterances) ? item.utterances : []);
+  const utterances = [
+    ...resultList.flatMap((item) => Array.isArray(item?.utterances) ? item.utterances : []),
+    ...(Array.isArray(payload?.utterances) ? payload.utterances : []),
+    ...(Array.isArray(payload?.resp?.utterances) ? payload.resp.utterances : []),
+  ];
+
   return utterances
     .map((item) => String(item?.text || '').trim())
     .filter(Boolean)
