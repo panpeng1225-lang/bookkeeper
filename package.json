@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:telegram-parser": "node telegram/scripts/verifyParseSamples.js",
+    "verify:telegram-speech": "node telegram/scripts/verifySpeechSample.js",
+    "telegram:dev": "node telegram/server.js",
+    "telegram:set-webhook": "node telegram/scripts/setWebhook.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.102.1",
