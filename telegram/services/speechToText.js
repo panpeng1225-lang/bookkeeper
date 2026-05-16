@@ -122,6 +122,10 @@ function extractVolcengineError(payload) {
     payload?.error,
     payload?.err_msg,
     payload?.result,
+    payload?.resp?.message,
+    payload?.resp?.msg,
+    payload?.resp?.error,
+    payload?.resp?.err_msg,
   ];
 
   for (const candidate of candidates) {
@@ -134,6 +138,28 @@ function extractVolcengineError(payload) {
   } catch {
     return 'unknown error';
   }
+}
+
+function getVolcengineResponseMeta(payload) {
+  const resp = payload?.resp && typeof payload.resp === 'object' ? payload.resp : null;
+
+  return {
+    code: String(
+      payload?.code ??
+      resp?.code ??
+      '',
+    ),
+    id: String(
+      payload?.id ??
+      resp?.id ??
+      '',
+    ).trim(),
+    message: String(
+      payload?.message ??
+      resp?.message ??
+      '',
+    ).trim(),
+  };
 }
 
 function createVolcengineHeaders(config, requestId) {
@@ -194,7 +220,8 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
   }
 
   const submitPayload = await submitResponse.json();
-  if (String(submitPayload.code) !== '0' || !submitPayload.id) {
+  const submitMeta = getVolcengineResponseMeta(submitPayload);
+  if (!['0', '1000'].includes(submitMeta.code) || !submitMeta.id) {
     throw new Error(`Volcengine submit error: ${extractVolcengineError(submitPayload)}`);
   }
 
@@ -206,7 +233,7 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
       appid: config.volcengine.appId,
       token: config.volcengine.token,
       cluster: options.cluster || config.volcengine.cluster,
-      id: submitPayload.id,
+      id: submitMeta.id,
     };
 
     const queryResponse = await fetch(config.volcengine.queryUrl, {
@@ -221,11 +248,12 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
     }
 
     const queryPayload = await queryResponse.json();
-    if (String(queryPayload.code) === '2000') {
+    const queryMeta = getVolcengineResponseMeta(queryPayload);
+    if (['2000', '1001'].includes(queryMeta.code)) {
       continue;
     }
 
-    if (String(queryPayload.code) !== '0') {
+    if (!['0', '1000'].includes(queryMeta.code)) {
       throw new Error(`Volcengine query error: ${extractVolcengineError(queryPayload)}`);
     }
 
