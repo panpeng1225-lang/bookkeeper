@@ -14,12 +14,15 @@ const VND_MARKERS = [
   '越南顿',
   '越盾',
   '遇难顿',
+  '悦能盾',
+  '玉南顿',
+  '玉南顿',
   'vnd',
   'dong',
 ];
 
 const TRAILING_RMB_RE = /(?:人民币|人名币|rmb|元(?:人民币|人名币)?|块钱|块)\s*$/i;
-const TRAILING_VND_RE = /(?:越南盾|越南顿|越盾|遇难顿|vnd|dong)\s*$/i;
+const TRAILING_VND_RE = /(?:越南盾|越南顿|越盾|遇难顿|悦能盾|玉南顿|vnd|dong)\s*$/i;
 
 export function detectCurrency(text, defaultCurrency = 'RMB') {
   const normalizedText = String(text || '').trim().toLowerCase();
