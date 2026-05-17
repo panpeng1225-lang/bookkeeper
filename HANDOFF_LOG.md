@@ -365,3 +365,49 @@
 - Parser samples now include real user phrasing patterns and pass
 - `lint` passed
 - `build` passed
+
+## 2026-05-17 Telegram Voice Parser Real-Sample Fix
+
+### User Feedback Addressed
+- Currency recognition was still too biased toward `RMB` when Volcengine transcribed Vietnamese dong badly.
+- New real tails now treated as `VND`:
+  - `元南顿`
+  - `元伦敦`
+  - `越南吨`
+  - `越南炖`
+  - `越南吞`
+  - `玉伦炖`
+  - `玉伦吨`
+- Voice habit confirmed:
+  - the final phrase is usually `amount + currency`
+  - if the final amount token contains `万` and the tail is only `元`, treat it as likely `VND`
+
+### Parser Changes
+- `telegram/services/currencyRules.js`
+  - Added trailing amount/currency candidate extraction.
+  - Added near-tail comparison against `人民币` and `越南盾`.
+  - Added explicit VND near-sound markers from real Telegram samples.
+- `telegram/services/amountRules.js`
+  - Expanded currency suffixes so amount extraction still works when the currency tail is mis-transcribed.
+- `telegram/services/noteRules.js`
+  - Expanded note cleanup for near-sound VND tails.
+  - Handles filler words like `呃` before the amount.
+- `telegram/services/categoryRules.js`
+  - Added real-life food/shopping/transport/entertainment keywords:
+    `盒饭`, `星巴克`, `烤肉`, `甜品店`, `糖水`, `哈根达斯`, `炸鸡`, `泡面`, `薯片`, `永旺`, `停车费`, etc.
+- `telegram/scripts/verifyParseSamples.js`
+  - Added all 10 latest user-reported bad cases as regression tests.
+
+### Verification
+- `npm.cmd run verify:telegram-parser` passed.
+- `npm.cmd run build` passed.
+- Production deployment verified:
+  - commit: `c140566 fix: improve telegram currency and category parsing`
+  - deployment: `dpl_3ApMjnhGirjyozE77aBTcqhxiUXe`
+  - alias: `https://bookkeeper-red.vercel.app`
+  - status: Ready
+
+### Next Watch Point
+- Continue collecting failed real Telegram samples.
+- For this stage, prefer adding small deterministic rules and regression samples.
+- Do not introduce AI category guessing; category remains rule-first, then `other`.
