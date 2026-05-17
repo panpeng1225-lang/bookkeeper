@@ -41,6 +41,14 @@ const samples = [
     text: '刚才打车花了十二万越盾',
     expected: { amount: 120000, currency: 'VND', category: 'transport' },
   },
+  {
+    text: '刚刚和天哥喝咖啡花了15万越南盾',
+    expected: { amount: 150000, currency: 'VND', category: 'food' },
+  },
+  {
+    text: '刚刚和天哥喝咖啡花了15万遇难顿',
+    expected: { amount: 150000, currency: 'VND', category: 'food' },
+  },
 ];
 
 let hasFailure = false;

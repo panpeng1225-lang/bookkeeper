@@ -23,12 +23,12 @@ const LARGE_UNITS = {
   亿: 100000000,
 };
 
-const AMOUNT_TOKEN_RE = '[0-9零一二两三四五六七八九十百千万亿点.,]+';
+const AMOUNT_TOKEN_RE = '[0-9零一二两三四五六七八九十百千万亿点,.]+';
 
 function normalizeAmountText(text) {
   return String(text || '')
     .replace(/[，,]/g, '')
-    .replace(/[。]/g, '.')
+    .replace(/[。．]/g, '.')
     .trim();
 }
 
@@ -46,16 +46,14 @@ function parseChineseIntegerPart(text) {
     }
 
     if (char in SMALL_UNITS) {
-      const unit = SMALL_UNITS[char];
-      section += (number || 1) * unit;
+      section += (number || 1) * SMALL_UNITS[char];
       number = 0;
       continue;
     }
 
     if (char in LARGE_UNITS) {
-      const unit = LARGE_UNITS[char];
       section += number;
-      total += (section || 1) * unit;
+      total += (section || 1) * LARGE_UNITS[char];
       section = 0;
       number = 0;
     }
@@ -64,12 +62,59 @@ function parseChineseIntegerPart(text) {
   return total + section + number;
 }
 
+function parseMixedNumericUnitPart(text) {
+  if (!text) return 0;
+
+  let total = 0;
+  let section = 0;
+  let number = null;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (/[0-9.]/.test(char)) {
+      let end = index + 1;
+      while (end < text.length && /[0-9.]/.test(text[end])) {
+        end += 1;
+      }
+      number = Number(text.slice(index, end));
+      index = end - 1;
+      continue;
+    }
+
+    if (char in CHINESE_DIGITS) {
+      number = CHINESE_DIGITS[char];
+      continue;
+    }
+
+    if (char in SMALL_UNITS) {
+      section += (number ?? 1) * SMALL_UNITS[char];
+      number = null;
+      continue;
+    }
+
+    if (char in LARGE_UNITS) {
+      section += number ?? 0;
+      total += (section || 1) * LARGE_UNITS[char];
+      section = 0;
+      number = null;
+    }
+  }
+
+  return total + section + (number ?? 0);
+}
+
 export function parseAmountToken(token) {
   const normalized = normalizeAmountText(token);
   if (!normalized) return null;
 
   if (/^\d+(\.\d+)?$/.test(normalized)) {
     return Number(normalized);
+  }
+
+  if (/[0-9]/.test(normalized) && /[十百千万亿]/.test(normalized)) {
+    const mixedValue = parseMixedNumericUnitPart(normalized);
+    return mixedValue || null;
   }
 
   const parts = normalized.split('点');
@@ -102,9 +147,8 @@ export function extractAmount(text) {
   if (!normalizedText) return null;
 
   const patterns = [
-    new RegExp(`(${AMOUNT_TOKEN_RE})\\s*(人民币|rmb|元|块钱|块|越盾|vnd|dong|đ|₫)`, 'i'),
-    new RegExp(`(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)\\s*(${AMOUNT_TOKEN_RE})`, 'i'),
-    new RegExp(`(${AMOUNT_TOKEN_RE})`, 'i'),
+    new RegExp(`(${AMOUNT_TOKEN_RE})\\s*(人民币|rmb|元|块钱|块|越南盾|越盾|越南顿|遇难顿|vnd|dong)`, 'i'),
+    new RegExp(`(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)?\\s*(${AMOUNT_TOKEN_RE})`, 'i'),
   ];
 
   for (const pattern of patterns) {
