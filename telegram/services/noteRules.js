@@ -4,7 +4,7 @@ function escapeRegExp(text) {
 
 const TRAILING_PUNCTUATION_RE = /[，,。.!！?？]+$/g;
 const TRAILING_AMOUNT_PHRASE_RE =
-  /(?:[，,、\s]*)?(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)?\s*[0-9零一二两三四五六七八九十百千万亿点,.]+\s*[，,、\s]*(?:人民币|人名币|rmb|元(?:人民币|人名币)?|块钱|块|越南盾|越南顿|越盾|遇难顿|悦能盾|玉南顿|vnd|dong)\s*[，,。.!！?？]*$/i;
+  /(?:[，,、\s]*)?(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)?\s*(?:呃|嗯|啊)?\s*[0-9零一二两三四五六七八九十百千万亿点,.]+\s*[，,、\s]*(?:人民币|人名币|rmb|元(?:人民币|人名币|南顿|伦敦)?|块钱|块|越南盾|越南顿|越南吨|越南炖|越南吞|越盾|遇难顿|悦能盾|玉南顿|玉伦炖|玉伦吨|vnd|dong)\s*[，,。.!！?？]*$/i;
 
 export function cleanNote(text, amountSource = '') {
   const input = String(text || '').trim();
@@ -15,6 +15,7 @@ export function cleanNote(text, amountSource = '') {
     ? new RegExp(
       `(?:[，,、\\s]*)` +
       `(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)?` +
+      `\\s*(?:呃|嗯|啊)?` +
       `\\s*${escapedAmountSource}\\s*[，,。.!！?？]*$`,
       'i',
     )

@@ -25,7 +25,7 @@ const LARGE_UNITS = {
 
 const AMOUNT_TOKEN_RE = '[0-9零一二两三四五六七八九十百千万亿点,.]+';
 const CURRENCY_SUFFIX_RE =
-  '(?:人民币|人名币|rmb|元(?:人民币|人名币)?|块钱|块|越南盾|越南顿|越盾|遇难顿|悦能盾|玉南顿|vnd|dong)';
+  '(?:人民币|人名币|rmb|元(?:人民币|人名币|南顿|伦敦)?|块钱|块|越南盾|越南顿|越南吨|越南炖|越南吞|越盾|遇难顿|悦能盾|玉南顿|玉伦炖|玉伦吨|vnd|dong)';
 
 function normalizeAmountText(text) {
   return String(text || '')

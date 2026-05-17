@@ -89,6 +89,46 @@ const samples = [
     text: '今天晚上和阿通打台球花了88,000越南盾',
     expected: { amount: 88000, currency: 'VND', category: 'entertainment', note: '今天晚上和阿通打台球' },
   },
+  {
+    text: '买了包薯片，花了呃一一万元南顿',
+    expected: { amount: 10000, currency: 'VND', category: 'shopping', note: '买了包薯片' },
+  },
+  {
+    text: '和英英勇一起喝星巴克，花了17万元伦敦',
+    expected: { amount: 170000, currency: 'VND', category: 'food', note: '和英英勇一起喝星巴克' },
+  },
+  {
+    text: '何小明吃烤肉花了31万越南吨',
+    expected: { amount: 310000, currency: 'VND', category: 'food', note: '何小明吃烤肉' },
+  },
+  {
+    text: '去甜品店喝糖水，何小明花了11万越南盾',
+    expected: { amount: 110000, currency: 'VND', category: 'food', note: '去甜品店喝糖水，何小明' },
+  },
+  {
+    text: '戴小明吃哈根达斯花了29万玉伦炖',
+    expected: { amount: 290000, currency: 'VND', category: 'food', note: '戴小明吃哈根达斯' },
+  },
+  {
+    text: '点外卖炸鸡给小明花了12万越南炖',
+    expected: { amount: 120000, currency: 'VND', category: 'food', note: '点外卖炸鸡给小明' },
+  },
+  {
+    text: '在永旺买猪排骨，土豆胡萝卜酸奶，奶闹和小明一起花了41万越南吞',
+    expected: { amount: 410000, currency: 'VND', category: 'shopping', note: '在永旺买猪排骨，土豆胡萝卜酸奶，奶闹和小明一起' },
+  },
+  {
+    text: '帮小明给摩托车缴停车费花了6,300玉伦吨',
+    expected: { amount: 6300, currency: 'VND', category: 'transport', note: '帮小明给摩托车缴停车费' },
+  },
+  {
+    text: '中午吃盒饭花了65,000越南盾',
+    expected: { amount: 65000, currency: 'VND', category: 'food', note: '中午吃盒饭' },
+  },
+  {
+    text: '吃韩式炸鸡和泡面花了32万元',
+    expected: { amount: 320000, currency: 'VND', category: 'food', note: '吃韩式炸鸡和泡面' },
+  },
 ];
 
 let hasFailure = false;
