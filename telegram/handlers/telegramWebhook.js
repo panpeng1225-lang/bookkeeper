@@ -42,6 +42,28 @@ function getCommandReply(text) {
   return '';
 }
 
+function formatVoiceFailureMessage(error) {
+  const messageText = String(error?.message || error);
+  const normalized = messageText.toLowerCase();
+
+  if (
+    normalized.includes('504') ||
+    normalized.includes('503') ||
+    normalized.includes('502') ||
+    normalized.includes('gateway time-out') ||
+    normalized.includes('gateway timeout') ||
+    normalized.includes('upstream')
+  ) {
+    return '语音识别服务刚刚超时了，这条没有成功记账。请稍等几秒后重试一次。';
+  }
+
+  if (normalized.includes('timed out') || normalized.includes('timeout')) {
+    return '语音识别等待超时了，这条没有成功记账。请稍后重试一次。';
+  }
+
+  return `语音识别失败：${messageText}`;
+}
+
 async function safeSendTelegramMessage(chatId, text) {
   if (!chatId || !text) return;
 
@@ -109,8 +131,7 @@ async function handleVoiceMessage(message) {
       formatSavedReply(savedRecord, transcription.text),
     );
   } catch (error) {
-    const messageText = String(error?.message || error);
-    await safeSendTelegramMessage(message.chat.id, `语音识别失败：${messageText}`);
+    await safeSendTelegramMessage(message.chat.id, formatVoiceFailureMessage(error));
   }
 }
 

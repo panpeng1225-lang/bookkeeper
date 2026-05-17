@@ -35,6 +35,8 @@ export function getSpeechToTextConfig() {
       queryUrl: readEnv('VOLCENGINE_SPEECH_QUERY_URL', 'https://openspeech.bytedance.com/api/v1/auc/query'),
       pollingIntervalMs: Number(process.env.VOLCENGINE_SPEECH_POLL_MS || 1500),
       pollingTimeoutMs: Number(process.env.VOLCENGINE_SPEECH_TIMEOUT_MS || 45000),
+      requestRetryCount: Number(process.env.VOLCENGINE_SPEECH_RETRY_COUNT || 2),
+      requestRetryDelayMs: Number(process.env.VOLCENGINE_SPEECH_RETRY_DELAY_MS || 1200),
     },
     openai: {
       apiKey: readEnv('OPENAI_API_KEY', ''),

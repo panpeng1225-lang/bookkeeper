@@ -179,6 +179,58 @@ function createVolcengineHeaders(config, requestId) {
   };
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableStatus(status) {
+  return [408, 429, 500, 502, 503, 504].includes(Number(status));
+}
+
+function isRetryableErrorMessage(message) {
+  const text = String(message || '').toLowerCase();
+  return (
+    text.includes('gateway time-out') ||
+    text.includes('gateway timeout') ||
+    text.includes('upstream') ||
+    text.includes('fetch failed') ||
+    text.includes('network') ||
+    text.includes('timeout')
+  );
+}
+
+async function fetchVolcengineJson(url, options, failureLabel, retryOptions) {
+  const retries = Math.max(0, Number(retryOptions?.retries || 0));
+  const delayMs = Math.max(0, Number(retryOptions?.delayMs || 0));
+
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const errorText = await response.text();
+        if (attempt < retries && isRetryableStatus(response.status)) {
+          await sleep(delayMs * (attempt + 1));
+          continue;
+        }
+        throw new Error(`${failureLabel}: ${response.status} ${errorText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries && isRetryableErrorMessage(error?.message)) {
+        await sleep(delayMs * (attempt + 1));
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw lastError || new Error(`${failureLabel}: unknown retry failure`);
+}
+
 async function fetchAudioAsBase64(audioUrl) {
   const response = await fetch(audioUrl);
   if (!response.ok) {
@@ -217,18 +269,21 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
     },
   };
 
-  const submitResponse = await fetch(config.volcengine.submitUrl, {
-    method: 'POST',
-    headers: createVolcengineHeaders(config, requestId),
-    body: JSON.stringify(submitBody),
-  });
+  const retryOptions = {
+    retries: config.volcengine.requestRetryCount,
+    delayMs: config.volcengine.requestRetryDelayMs,
+  };
 
-  if (!submitResponse.ok) {
-    const errorText = await submitResponse.text();
-    throw new Error(`Volcengine submit failed: ${submitResponse.status} ${errorText}`);
-  }
-
-  const submitPayload = await submitResponse.json();
+  const submitPayload = await fetchVolcengineJson(
+    config.volcengine.submitUrl,
+    {
+      method: 'POST',
+      headers: createVolcengineHeaders(config, requestId),
+      body: JSON.stringify(submitBody),
+    },
+    'Volcengine submit failed',
+    retryOptions,
+  );
   const submitMeta = getVolcengineResponseMeta(submitPayload);
   if (!['0', '1000'].includes(submitMeta.code) || !submitMeta.id) {
     throw new Error(`Volcengine submit error: ${extractVolcengineError(submitPayload)}`);
@@ -245,18 +300,16 @@ async function transcribeBase64WithVolcengine(base64Audio, options = {}) {
       id: submitMeta.id,
     };
 
-    const queryResponse = await fetch(config.volcengine.queryUrl, {
-      method: 'POST',
-      headers: createVolcengineHeaders(config, requestId),
-      body: JSON.stringify(queryBody),
-    });
-
-    if (!queryResponse.ok) {
-      const errorText = await queryResponse.text();
-      throw new Error(`Volcengine query failed: ${queryResponse.status} ${errorText}`);
-    }
-
-    const queryPayload = await queryResponse.json();
+    const queryPayload = await fetchVolcengineJson(
+      config.volcengine.queryUrl,
+      {
+        method: 'POST',
+        headers: createVolcengineHeaders(config, requestId),
+        body: JSON.stringify(queryBody),
+      },
+      'Volcengine query failed',
+      retryOptions,
+    );
     const queryMeta = getVolcengineResponseMeta(queryPayload);
     if (['2000', '1001'].includes(queryMeta.code)) {
       continue;
