@@ -1,11 +1,7 @@
 const CATEGORY_RULES = [
   {
-    category: 'baby',
-    keywords: ['奶粉', '尿布', '宝宝', '金宝', '婴儿', '玩具', '纸尿裤'],
-  },
-  {
     category: 'food',
-    keywords: ['吃饭', '午饭', '晚饭', '早餐', '夜宵', '咖啡', '奶茶', '饮料', '餐厅', '外卖'],
+    keywords: ['吃饭', '午饭', '晚饭', '早餐', '夜宵', '咖啡', '奶茶', '饮料', '餐厅', '外卖', '麦当劳'],
   },
   {
     category: 'transport',
@@ -22,6 +18,10 @@ const CATEGORY_RULES = [
   {
     category: 'shopping',
     keywords: ['超市', '淘宝', '京东', '购物', '衣服', '鞋', '日用品', '买菜'],
+  },
+  {
+    category: 'baby',
+    keywords: ['奶粉', '尿布', '宝宝', '金宝', '婴儿', '玩具', '纸尿裤'],
   },
 ];
 

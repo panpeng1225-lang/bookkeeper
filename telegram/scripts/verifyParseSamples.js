@@ -49,6 +49,18 @@ const samples = [
     text: '刚刚和天哥喝咖啡花了15万遇难顿',
     expected: { amount: 150000, currency: 'VND', category: 'food' },
   },
+  {
+    text: '刚刚给金宝买衣服花了200元人民币',
+    expected: { amount: 200, currency: 'RMB', category: 'shopping' },
+  },
+  {
+    text: '刚刚吃麦当劳花了20万越南盾',
+    expected: { amount: 200000, currency: 'VND', category: 'food' },
+  },
+  {
+    text: '刚刚给金宝买衣服花了200元人名币',
+    expected: { amount: 200, currency: 'RMB', category: 'shopping' },
+  },
 ];
 
 let hasFailure = false;

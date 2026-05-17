@@ -24,6 +24,7 @@ const LARGE_UNITS = {
 };
 
 const AMOUNT_TOKEN_RE = '[0-9零一二两三四五六七八九十百千万亿点,.]+';
+const CURRENCY_SUFFIX_RE = '(?:人民币|人名币|rmb|元人民币|元|块钱|块|越南盾|越南顿|越盾|遇难顿|vnd|dong)';
 
 function normalizeAmountText(text) {
   return String(text || '')
@@ -147,8 +148,12 @@ export function extractAmount(text) {
   if (!normalizedText) return null;
 
   const patterns = [
-    new RegExp(`(${AMOUNT_TOKEN_RE})\\s*(人民币|rmb|元|块钱|块|越南盾|越盾|越南顿|遇难顿|vnd|dong)`, 'i'),
-    new RegExp(`(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)?\\s*(${AMOUNT_TOKEN_RE})`, 'i'),
+    new RegExp(`(${AMOUNT_TOKEN_RE})\\s*${CURRENCY_SUFFIX_RE}\\s*$`, 'i'),
+    new RegExp(`(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)\\s*(${AMOUNT_TOKEN_RE})\\s*${CURRENCY_SUFFIX_RE}\\s*$`, 'i'),
+    new RegExp(`(${AMOUNT_TOKEN_RE})\\s*${CURRENCY_SUFFIX_RE}`, 'i'),
+    new RegExp(`(?:花了|花费|花|用了|支出|付了|付|买了|买|交了|交)\\s*(${AMOUNT_TOKEN_RE})`, 'i'),
+    new RegExp(`(${AMOUNT_TOKEN_RE})\\s*$`, 'i'),
+    new RegExp(`(${AMOUNT_TOKEN_RE})`, 'i'),
   ];
 
   for (const pattern of patterns) {
@@ -161,3 +166,5 @@ export function extractAmount(text) {
 
   return null;
 }
+
+export { CURRENCY_SUFFIX_RE };
