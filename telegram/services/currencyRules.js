@@ -3,6 +3,7 @@ const RMB_MARKERS = [
   '人名币',
   'rmb',
   '元人民币',
+  '元人名币',
   '块钱',
   '块',
   '元',
@@ -17,7 +18,7 @@ const VND_MARKERS = [
   'dong',
 ];
 
-const TRAILING_RMB_RE = /(?:人民币|人名币|rmb|元人民币|块钱|块|元)\s*$/i;
+const TRAILING_RMB_RE = /(?:人民币|人名币|rmb|元(?:人民币|人名币)?|块钱|块)\s*$/i;
 const TRAILING_VND_RE = /(?:越南盾|越南顿|越盾|遇难顿|vnd|dong)\s*$/i;
 
 export function detectCurrency(text, defaultCurrency = 'RMB') {

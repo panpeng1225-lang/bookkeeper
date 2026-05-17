@@ -338,3 +338,30 @@
   2. one plain text accounting message
   3. one voice accounting message
 - At this point, remaining uncertainty is no longer connection architecture. It is only real-message behavior validation against the live bot and live Volcengine response.
+
+## 2026-05-17 Telegram Stage 5 Started
+
+### What Changed
+- Telegram parser now cleans `note` before saving:
+  - trailing amount + currency is removed from note text
+- Telegram bot now writes parsed records into Supabase `records`
+- Added a dedicated server-side writer:
+  - `telegram/services/supabaseWriter.js`
+- Added note cleaning rules:
+  - `telegram/services/noteRules.js`
+
+### Current Parsing Direction
+- Treat trailing `金额 + 币种` as the strongest accounting anchor for voice phrasing
+- Support common speech-to-text currency near-sound errors:
+  - `越南盾`
+  - `越南顿`
+  - `遇难顿`
+  - `人民币`
+  - `人名币`
+- Prefer semantic usage keywords over person/object words when both appear:
+  - example: `给金宝买衣服` should still classify as `shopping`, not `baby`
+
+### Verification
+- Parser samples now include real user phrasing patterns and pass
+- `lint` passed
+- `build` passed

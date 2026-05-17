@@ -44,6 +44,13 @@ export function getSpeechToTextConfig() {
   };
 }
 
+export function getTelegramSupabaseConfig() {
+  return {
+    url: readEnv('TELEGRAM_SUPABASE_URL', readEnv('VITE_SUPABASE_URL', '')),
+    anonKey: readEnv('TELEGRAM_SUPABASE_ANON_KEY', readEnv('VITE_SUPABASE_ANON_KEY', '')),
+  };
+}
+
 export function assertVolcengineSpeechConfig(config = getSpeechToTextConfig()) {
   const hasOldConsoleAuth = Boolean(config.volcengine.appId && config.volcengine.token);
 
@@ -63,5 +70,13 @@ export function assertOpenAISpeechConfig(config = getSpeechToTextConfig()) {
 export function assertTelegramBotConfig(config = getTelegramBotConfig()) {
   if (!config.botToken) {
     throw new Error('Missing required environment variable: TELEGRAM_BOT_TOKEN');
+  }
+}
+
+export function assertTelegramSupabaseConfig(config = getTelegramSupabaseConfig()) {
+  if (!config.url || !config.anonKey) {
+    throw new Error(
+      'Missing required Supabase config: provide TELEGRAM_SUPABASE_URL/TELEGRAM_SUPABASE_ANON_KEY or VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY',
+    );
   }
 }

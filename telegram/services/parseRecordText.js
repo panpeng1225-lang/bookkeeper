@@ -1,6 +1,7 @@
 import { extractAmount } from './amountRules.js';
 import { matchCategory } from './categoryRules.js';
 import { detectCurrency } from './currencyRules.js';
+import { cleanNote } from './noteRules.js';
 
 export function parseRecordText(text, options = {}) {
   const input = String(text || '').trim();
@@ -31,14 +32,14 @@ export function parseRecordText(text, options = {}) {
       amount: amountResult.amount,
       currency: detectCurrency(input, defaultCurrency),
       category: matchCategory(input),
-      note: input,
+      note: cleanNote(input, amountResult.source),
       date: now.toISOString().slice(0, 10),
       time: now.toTimeString().slice(0, 5),
       tag: '',
     },
     meta: {
       amountSource: amountResult.source,
-      parserVersion: 'stage2-rules-only',
+      parserVersion: 'stage5-rules-save-ready',
     },
   };
 }

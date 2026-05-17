@@ -43,23 +43,23 @@ const samples = [
   },
   {
     text: '刚刚和天哥喝咖啡花了15万越南盾',
-    expected: { amount: 150000, currency: 'VND', category: 'food' },
+    expected: { amount: 150000, currency: 'VND', category: 'food', note: '刚刚和天哥喝咖啡' },
   },
   {
     text: '刚刚和天哥喝咖啡花了15万遇难顿',
-    expected: { amount: 150000, currency: 'VND', category: 'food' },
+    expected: { amount: 150000, currency: 'VND', category: 'food', note: '刚刚和天哥喝咖啡' },
   },
   {
     text: '刚刚给金宝买衣服花了200元人民币',
-    expected: { amount: 200, currency: 'RMB', category: 'shopping' },
+    expected: { amount: 200, currency: 'RMB', category: 'shopping', note: '刚刚给金宝买衣服' },
   },
   {
     text: '刚刚吃麦当劳花了20万越南盾',
-    expected: { amount: 200000, currency: 'VND', category: 'food' },
+    expected: { amount: 200000, currency: 'VND', category: 'food', note: '刚刚吃麦当劳' },
   },
   {
     text: '刚刚给金宝买衣服花了200元人名币',
-    expected: { amount: 200, currency: 'RMB', category: 'shopping' },
+    expected: { amount: 200, currency: 'RMB', category: 'shopping', note: '刚刚给金宝买衣服' },
   },
 ];
 
@@ -82,6 +82,7 @@ for (const sample of samples) {
     amount: result.record.amount,
     currency: result.record.currency,
     category: result.record.category,
+    note: result.record.note,
   };
 
   const matched = Object.entries(sample.expected).every(([key, value]) => actual[key] === value);

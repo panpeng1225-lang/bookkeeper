@@ -134,3 +134,25 @@ npm.cmd run telegram:set-webhook -- --base-url https://your-public-host --path /
   - `https://openspeech.bytedance.com/api/v1/auc/query`
   - `Authorization: Bearer; <token>`
 - If older sections in this file still mention `VOLCENGINE_SPEECH_API_KEY`, `VOLCENGINE_SPEECH_RESOURCE_ID`, or `api/v3/auc/bigmodel`, treat them as obsolete exploration notes, not the current path.
+
+## 2026-05-17 Current Bot Behavior
+
+- Telegram text and voice messages now do two things:
+  - parse amount / currency / category / note
+  - write the parsed record into Supabase `records`
+- The bot reply is no longer just a preview. It is now a save confirmation.
+- Note cleaning rule:
+  - keep the semantic part of the sentence
+  - strip the trailing amount + currency phrase from `note`
+  - example:
+    - input: `刚刚和翠琼一起点必胜客的外卖，花了46万越南盾`
+    - saved note: `刚刚和翠琼一起点必胜客的外卖`
+
+## Supabase Env Notes
+
+- Preferred dedicated envs:
+  - `TELEGRAM_SUPABASE_URL`
+  - `TELEGRAM_SUPABASE_ANON_KEY`
+- Fallback envs already supported:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
