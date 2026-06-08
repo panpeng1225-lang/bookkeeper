@@ -53,6 +53,13 @@ export function getTelegramSupabaseConfig() {
   };
 }
 
+export function getTelegramStorageConfig() {
+  return {
+    driver: readEnv('TELEGRAM_STORAGE_DRIVER', ''),
+    ledgerApiBase: readEnv('TELEGRAM_LEDGER_API_BASE', ''),
+  };
+}
+
 export function assertVolcengineSpeechConfig(config = getSpeechToTextConfig()) {
   const hasOldConsoleAuth = Boolean(config.volcengine.appId && config.volcengine.token);
 
@@ -80,5 +87,11 @@ export function assertTelegramSupabaseConfig(config = getTelegramSupabaseConfig(
     throw new Error(
       'Missing required Supabase config: provide TELEGRAM_SUPABASE_URL/TELEGRAM_SUPABASE_ANON_KEY or VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY',
     );
+  }
+}
+
+export function assertTelegramLedgerApiConfig(config = getTelegramStorageConfig()) {
+  if (!config.ledgerApiBase) {
+    throw new Error('Missing required environment variable: TELEGRAM_LEDGER_API_BASE');
   }
 }

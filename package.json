@@ -10,6 +10,9 @@
     "preview": "vite preview",
     "verify:telegram-parser": "node telegram/scripts/verifyParseSamples.js",
     "verify:telegram-speech": "node telegram/scripts/verifySpeechSample.js",
+    "verify:ledger-merge": "node scripts/verifyLedgerKvMerge.js",
+    "migration:export:supabase": "node scripts/exportSupabaseRecords.js",
+    "migration:import:edgeone": "node scripts/importEdgeOneData.js",
     "telegram:dev": "node telegram/server.js",
     "telegram:set-webhook": "node telegram/scripts/setWebhook.js"
   },

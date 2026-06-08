@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 
 .vercel
+.edgeone
+
+# Migration exports may contain private ledger data.
+migration/*.json
+!migration/.gitkeep
+
+.env*.local

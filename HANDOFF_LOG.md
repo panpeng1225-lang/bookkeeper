@@ -411,3 +411,93 @@
 - Continue collecting failed real Telegram samples.
 - For this stage, prefer adding small deterministic rules and regression samples.
 - Do not introduce AI category guessing; category remains rule-first, then `other`.
+
+## 2026-06-08 EdgeOne KV Migration Started
+
+### Goal
+- Move Bookkeeper storage away from overseas Supabase/Vercel dependency.
+- Target runtime:
+  - EdgeOne Pages static frontend
+  - EdgeOne Pages Functions API
+  - EdgeOne Pages KV storage
+  - KV binding variable: `LEDGER_KV`
+
+### Data Audit Result
+- Remote data currently used by app:
+  - Supabase table `records`
+- Local browser data:
+  - `bookkeeper_records` is fallback/cache
+  - `bookkeeper_settings` stores default currency cache
+  - `bookkeeper_exchange_rate` stores exchange rate cache
+  - `bookkeeper_vision_key` stays local because it is a personal API key
+- Not currently implemented:
+  - accounts
+  - budgets
+  - recurring records
+
+### Code Implemented
+- EdgeOne KV storage core:
+  - `edgeone/ledgerStore.js`
+  - `edgeone/http.js`
+- EdgeOne Pages Functions:
+  - `edge-functions/api/records.js`
+  - `edge-functions/api/transactions.js`
+  - `edge-functions/api/settings.js`
+  - `edge-functions/api/health.js`
+- Frontend storage driver:
+  - `src/services/ledgerApi.js`
+  - `src/services/recordService.js`
+- Telegram writer migration support:
+  - `telegram/services/supabaseWriter.js` now supports EdgeOne API when configured
+  - env switch:
+    - `TELEGRAM_STORAGE_DRIVER=edgeone-kv`
+    - `TELEGRAM_LEDGER_API_BASE=https://<edgeone-domain>`
+- Migration scripts:
+  - `scripts/exportSupabaseRecords.js`
+  - `scripts/importEdgeOneData.js`
+  - `scripts/verifyLedgerKvMerge.js`
+- Deployment config:
+  - `edgeone.json`
+- Full notes:
+  - `EDGEONE_MIGRATION.md`
+
+### Data Export
+- Vercel env pulled locally into ignored `.env.local`.
+- Supabase export succeeded:
+  - `181` records
+  - output: `migration/ledger-migration-data.json`
+  - file is ignored by Git and must not be committed.
+
+### Verification Passed
+- `npm.cmd run verify:ledger-merge`
+- `npm.cmd run verify:telegram-parser`
+- `npm.cmd run lint`
+- `npm.cmd run build`
+
+### EdgeOne Deployment
+- EdgeOne CLI version: `1.5.9`
+- Logged-in Tencent Cloud account confirmed.
+- Deployed with:
+  - `npx edgeone pages deploy -n bookkeeper --area global --env production`
+- Created EdgeOne Pages project:
+  - name: `bookkeeper`
+  - project id: `pages-nwjoloizkfpz`
+  - deployment id: `dperyoz5826a`
+- Functions are reachable, but KV is not bound yet.
+
+### Current Blocker
+- `GET /api/health` currently returns:
+  - `Missing EdgeOne KV binding: expected LEDGER_KV`
+- This means EdgeOne Pages project `bookkeeper` needs a KV namespace bound with variable name exactly `LEDGER_KV`.
+
+### Next Step
+1. In EdgeOne console, create/select KV namespace, recommended name `ledger`.
+2. Bind namespace to Pages project `bookkeeper`.
+3. Binding variable name must be `LEDGER_KV`.
+4. Recheck `/api/health`.
+5. Run:
+   - `npm.cmd run migration:import:edgeone`
+   - with `LEDGER_API_BASE` set to the EdgeOne domain.
+6. Verify `/api/records` count equals `181`.
+7. Test desktop/mobile shared data.
+8. Switch Telegram writer env to EdgeOne API and test one Telegram text/voice record.

@@ -1,6 +1,51 @@
 import { supabase } from '../config/supabase';
+import {
+  deleteApiRecord,
+  fetchApiRecords,
+  fetchApiSettings,
+  putApiRecords,
+  putApiSettings,
+  shouldUseLedgerApi,
+} from './ledgerApi';
 
-// ── Supabase 实现 ──────────────────────────────
+const RECORDS_KEY = 'bookkeeper_records';
+const SETTINGS_KEY = 'bookkeeper_settings';
+const EXCHANGE_RATE_KEY = 'bookkeeper_exchange_rate';
+
+const useLedgerApi = shouldUseLedgerApi(!!supabase);
+const useSupabase = !useLedgerApi && !!supabase;
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function sortRecords(records) {
+  return [...records].sort((a, b) => {
+    const dateCompare = String(b.date || '').localeCompare(String(a.date || ''));
+    if (dateCompare) return dateCompare;
+    const timeCompare = String(b.time || '').localeCompare(String(a.time || ''));
+    if (timeCompare) return timeCompare;
+    return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+  });
+}
+
+function normalizeRecord(record) {
+  const createdAt = record.createdAt || record.created_at || nowIso();
+  const category = record.category || 'other';
+
+  return {
+    id: record.id,
+    amount: Number(record.amount),
+    category,
+    currency: record.currency || 'VND',
+    note: record.note || '',
+    tag: category === 'income' ? '' : (record.tag || ''),
+    date: record.date || record.record_date,
+    time: record.time || record.record_time || '00:00',
+    createdAt,
+    updatedAt: record.updatedAt || record.updated_at || createdAt,
+  };
+}
 
 async function fetchAllFromSupabase() {
   const { data, error } = await supabase
@@ -9,7 +54,7 @@ async function fetchAllFromSupabase() {
     .order('record_date', { ascending: false })
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return data.map(normalize);
+  return data.map(normalizeRecord);
 }
 
 async function addToSupabase(record) {
@@ -27,7 +72,7 @@ async function addToSupabase(record) {
     .select()
     .single();
   if (error) throw error;
-  return normalize(data);
+  return normalizeRecord(data);
 }
 
 async function updateInSupabase(id, record) {
@@ -46,7 +91,7 @@ async function updateInSupabase(id, record) {
     .select()
     .single();
   if (error) throw error;
-  return normalize(data);
+  return normalizeRecord(data);
 }
 
 async function deleteFromSupabase(id) {
@@ -54,87 +99,20 @@ async function deleteFromSupabase(id) {
   if (error) throw error;
 }
 
-// Supabase 行 → 统一格式
-function normalize(row) {
-  return {
-    id: row.id,
-    amount: Number(row.amount),
-    category: row.category,
-    currency: row.currency || 'VND',
-    note: row.note || '',
-    tag: row.tag || '',
-    date: row.record_date,
-    time: row.record_time || '00:00',
-    createdAt: row.created_at,
-  };
-}
-
-// ── localStorage 回退（未配置 Supabase 时） ────
-
-const LS_KEY = 'bookkeeper_records';
-
-function loadFromLS() {
+function loadRecordsFromCache() {
   try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+    return sortRecords(records.map(normalizeRecord));
   } catch {
     return [];
   }
 }
 
-function saveToLS(records) {
-  localStorage.setItem(LS_KEY, JSON.stringify(records));
+function saveRecordsToCache(records) {
+  localStorage.setItem(RECORDS_KEY, JSON.stringify(sortRecords(records)));
 }
 
-// ── 对外统一接口 ───────────────────────────────
-
-const useSupabase = !!supabase;
-
-export async function getRecords() {
-  if (useSupabase) return fetchAllFromSupabase();
-  return loadFromLS().map(record => ({ ...record, tag: record.tag || '' }));
-}
-
-export async function addRecord(record) {
-  if (useSupabase) return addToSupabase(record);
-  const records = loadFromLS();
-  const newRec = {
-    ...record,
-    tag: record.category === 'income' ? '' : (record.tag || ''),
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-  };
-  records.unshift(newRec);
-  saveToLS(records);
-  return newRec;
-}
-
-export async function updateRecord(id, record) {
-  if (useSupabase) return updateInSupabase(id, record);
-  const records = loadFromLS();
-  const idx = records.findIndex(r => r.id === id);
-  if (idx >= 0) {
-    records[idx] = {
-      ...records[idx],
-      ...record,
-      tag: record.category === 'income' ? '' : (record.tag || ''),
-    };
-    saveToLS(records);
-    return records[idx];
-  }
-  throw new Error('Record not found');
-}
-
-export async function deleteRecord(id) {
-  if (useSupabase) return deleteFromSupabase(id);
-  const records = loadFromLS().filter(r => r.id !== id);
-  saveToLS(records);
-}
-
-// ── 设置（默认币种等） ─────────────────────────
-
-const SETTINGS_KEY = 'bookkeeper_settings';
-
-export function getSettings() {
+function loadSettingsFromCache() {
   try {
     return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
   } catch {
@@ -142,6 +120,138 @@ export function getSettings() {
   }
 }
 
-export function saveSettings(settings) {
+function saveSettingsToCache(settings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+async function fetchAllFromLedgerApi() {
+  const records = (await fetchApiRecords()).map(normalizeRecord);
+  saveRecordsToCache(records);
+  return sortRecords(records);
+}
+
+async function addToLedgerApi(record) {
+  const stamp = nowIso();
+  const newRecord = normalizeRecord({
+    ...record,
+    id: crypto.randomUUID(),
+    tag: record.category === 'income' ? '' : (record.tag || ''),
+    createdAt: stamp,
+    updatedAt: stamp,
+  });
+
+  const records = (await putApiRecords([newRecord])).map(normalizeRecord);
+  saveRecordsToCache(records);
+  return records.find((item) => item.id === newRecord.id) || newRecord;
+}
+
+async function updateInLedgerApi(id, record) {
+  const current = loadRecordsFromCache().find((item) => item.id === id) || {};
+  const updatedRecord = normalizeRecord({
+    ...current,
+    ...record,
+    id,
+    tag: record.category === 'income' ? '' : (record.tag || ''),
+    updatedAt: nowIso(),
+  });
+
+  const records = (await putApiRecords([updatedRecord])).map(normalizeRecord);
+  saveRecordsToCache(records);
+  return records.find((item) => item.id === id) || updatedRecord;
+}
+
+async function deleteFromLedgerApi(id) {
+  const records = (await deleteApiRecord(id)).map(normalizeRecord);
+  saveRecordsToCache(records);
+}
+
+export async function getRecords() {
+  if (useLedgerApi) {
+    try {
+      return await fetchAllFromLedgerApi();
+    } catch (error) {
+      console.warn('Failed to load remote records, using local cache:', error);
+      return loadRecordsFromCache();
+    }
+  }
+
+  if (useSupabase) return fetchAllFromSupabase();
+  return loadRecordsFromCache();
+}
+
+export async function addRecord(record) {
+  if (useLedgerApi) return addToLedgerApi(record);
+  if (useSupabase) return addToSupabase(record);
+
+  const records = loadRecordsFromCache();
+  const stamp = nowIso();
+  const newRecord = normalizeRecord({
+    ...record,
+    id: crypto.randomUUID(),
+    createdAt: stamp,
+    updatedAt: stamp,
+  });
+  saveRecordsToCache([newRecord, ...records]);
+  return newRecord;
+}
+
+export async function updateRecord(id, record) {
+  if (useLedgerApi) return updateInLedgerApi(id, record);
+  if (useSupabase) return updateInSupabase(id, record);
+
+  const records = loadRecordsFromCache();
+  const idx = records.findIndex((item) => item.id === id);
+  if (idx < 0) throw new Error('Record not found');
+
+  records[idx] = normalizeRecord({
+    ...records[idx],
+    ...record,
+    id,
+    updatedAt: nowIso(),
+  });
+  saveRecordsToCache(records);
+  return records[idx];
+}
+
+export async function deleteRecord(id) {
+  if (useLedgerApi) return deleteFromLedgerApi(id);
+  if (useSupabase) return deleteFromSupabase(id);
+
+  saveRecordsToCache(loadRecordsFromCache().filter((record) => record.id !== id));
+}
+
+export function getSettings() {
+  return loadSettingsFromCache();
+}
+
+export async function syncSettings() {
+  if (!useLedgerApi) return loadSettingsFromCache();
+
+  try {
+    const remoteSettings = await fetchApiSettings();
+    const merged = { ...loadSettingsFromCache(), ...remoteSettings };
+    saveSettingsToCache(merged);
+    if (Number(merged.exchangeRate || 0) > 0) {
+      localStorage.setItem(EXCHANGE_RATE_KEY, String(merged.exchangeRate));
+    }
+    return merged;
+  } catch (error) {
+    console.warn('Failed to load remote settings, using local cache:', error);
+    return loadSettingsFromCache();
+  }
+}
+
+export function saveSettings(settings) {
+  const next = {
+    ...loadSettingsFromCache(),
+    ...settings,
+    updatedAt: nowIso(),
+  };
+  saveSettingsToCache(next);
+
+  if (useLedgerApi) {
+    putApiSettings(next).catch((error) => {
+      console.warn('Failed to save remote settings:', error);
+    });
+  }
 }

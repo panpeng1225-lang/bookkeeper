@@ -1,0 +1,7 @@
+{
+  "name": "bookkeeper",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
+  "nodeVersion": "22.17.1"
+}

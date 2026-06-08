@@ -1,3 +1,5 @@
+import { getSettings, saveSettings } from './recordService';
+
 const RATE_KEY = 'bookkeeper_exchange_rate';
 
 // 默认汇率: 1 RMB = 3,400 VND (大概)
@@ -5,11 +7,15 @@ const DEFAULT_RATE = 3400;
 
 export function getExchangeRate() {
   const saved = localStorage.getItem(RATE_KEY);
-  return saved ? parseFloat(saved) : DEFAULT_RATE;
+  if (saved) return parseFloat(saved);
+
+  const settingsRate = Number(getSettings().exchangeRate || 0);
+  return settingsRate > 0 ? settingsRate : DEFAULT_RATE;
 }
 
 export function saveExchangeRate(rate) {
   localStorage.setItem(RATE_KEY, String(rate));
+  saveSettings({ exchangeRate: rate });
 }
 
 // VND → RMB

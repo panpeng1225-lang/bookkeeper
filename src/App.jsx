@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DEFAULT_CURRENCY } from './config/currencies';
-import { getRecords, addRecord, updateRecord, deleteRecord, getSettings, saveSettings } from './services/recordService';
+import { getRecords, addRecord, updateRecord, deleteRecord, getSettings, saveSettings, syncSettings } from './services/recordService';
 import { getVisionApiKey } from './config/deepseek';
 import HomePage from './pages/HomePage';
 import AddPage from './pages/AddPage';
@@ -49,6 +49,20 @@ export default function App() {
   }, []);
 
   useEffect(() => { loadRecords(); }, [loadRecords]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    syncSettings().then((settings) => {
+      if (!cancelled && settings.defaultCurrency) {
+        setDefaultCurrency(settings.defaultCurrency);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 保存记录
   const handleSave = async (data) => {
