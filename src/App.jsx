@@ -51,6 +51,22 @@ export default function App() {
   useEffect(() => { loadRecords(); }, [loadRecords]);
 
   useEffect(() => {
+    if (page === 'add') return undefined;
+
+    const handleFocus = () => {
+      loadRecords();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    const timer = window.setInterval(loadRecords, 20000);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.clearInterval(timer);
+    };
+  }, [loadRecords, page]);
+
+  useEffect(() => {
     let cancelled = false;
 
     syncSettings().then((settings) => {

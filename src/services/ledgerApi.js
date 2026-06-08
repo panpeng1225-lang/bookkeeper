@@ -6,6 +6,11 @@ function apiUrl(path) {
   return `${getApiBase()}${path}`;
 }
 
+function withNoCache(path) {
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}_=${Date.now()}`;
+}
+
 async function requestJson(path, options = {}) {
   const response = await fetch(apiUrl(path), {
     ...options,
@@ -34,7 +39,7 @@ export function shouldUseLedgerApi(hasSupabase) {
 }
 
 export async function fetchApiRecords() {
-  const data = await requestJson('/api/records');
+  const data = await requestJson(withNoCache('/api/records'));
   return Array.isArray(data.items) ? data.items : [];
 }
 
@@ -54,7 +59,7 @@ export async function deleteApiRecord(id) {
 }
 
 export async function fetchApiSettings() {
-  const data = await requestJson('/api/settings');
+  const data = await requestJson(withNoCache('/api/settings'));
   return data.settings && typeof data.settings === 'object' ? data.settings : {};
 }
 
