@@ -588,3 +588,44 @@
 - Send one new real Telegram text or voice accounting message.
 - Confirm it appears after refreshing:
   - `https://bookkeeper-wms4ylwb.edgeone.cool`
+
+## 2026-06-08 EdgeOne Frontend Refresh Fix After Telegram Writes
+
+### Problem Observed
+- User sent another Telegram accounting message.
+- Telegram replied saved, but the EdgeOne frontend did not show it after refresh.
+
+### Diagnosis
+- Direct API comparison showed the Telegram record was already in EdgeOne:
+  - EdgeOne count: `184`
+  - Supabase count: `182`
+  - `onlySupabase: 0`
+  - latest EdgeOne-only record included the user's Telegram test note `测试3今天`
+- Therefore Telegram storage was fixed.
+- Remaining issue was frontend read freshness, likely caused by cache/stale edge reads/local cache fallback.
+
+### Fix Applied
+- `src/services/ledgerApi.js`
+  - GET `/api/records` and `/api/settings` now append a timestamp query parameter.
+  - This avoids any browser/CDN/intermediate cache on data reads.
+- `src/App.jsx`
+  - Non-edit pages now refresh records every 20 seconds.
+  - Window focus also triggers a records refresh.
+  - Edit page is excluded to avoid disrupting in-progress edits.
+
+### Deployment
+- Commit:
+  - `85ba09e fix: refresh edgeone records after telegram writes`
+- EdgeOne production deployment:
+  - deployment id: `dpxkqg1mvznz`
+- Verified live frontend asset:
+  - `index-B11ZjRwd.js`
+- Verified API:
+  - `/api/health` returned `records: 184`
+
+### Next User Test
+- Open `https://bookkeeper-wms4ylwb.edgeone.cool`.
+- Hard refresh once if the old asset is still cached.
+- Send one Telegram accounting message.
+- Wait up to 20 seconds or switch away/back to the app.
+- The new Telegram record should appear without needing to reopen the app.
