@@ -55,8 +55,8 @@ export function getTelegramSupabaseConfig() {
 
 export function getTelegramStorageConfig() {
   return {
-    driver: readEnv('TELEGRAM_STORAGE_DRIVER', ''),
-    ledgerApiBase: readEnv('TELEGRAM_LEDGER_API_BASE', ''),
+    driver: readEnv('TELEGRAM_STORAGE_DRIVER', 'edgeone-kv'),
+    ledgerApiBase: readEnv('TELEGRAM_LEDGER_API_BASE', 'https://bookkeeper-wms4ylwb.edgeone.cool'),
   };
 }
 

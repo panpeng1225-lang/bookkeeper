@@ -1,6 +1,6 @@
 /* global Buffer */
 
-import { getTelegramBotConfig } from '../telegram/config.js';
+import { getTelegramBotConfig, getTelegramStorageConfig } from '../telegram/config.js';
 import { handleTelegramUpdate } from '../telegram/handlers/telegramWebhook.js';
 
 function sendJson(res, statusCode, payload) {
@@ -27,6 +27,18 @@ async function readRequestBody(req) {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
+      if (req.url?.includes('debug=storage')) {
+        const storage = getTelegramStorageConfig();
+        sendJson(res, 200, {
+          ok: true,
+          route: 'telegram-webhook',
+          storageDriver: storage.driver,
+          hasLedgerApiBase: Boolean(storage.ledgerApiBase),
+          ledgerApiHost: storage.ledgerApiBase ? new URL(storage.ledgerApiBase).host : '',
+        });
+        return;
+      }
+
       sendJson(res, 200, { ok: true, route: 'telegram-webhook' });
       return;
     }
