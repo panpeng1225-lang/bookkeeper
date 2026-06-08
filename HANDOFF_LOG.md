@@ -543,3 +543,48 @@
 - Open the same URL on phone and confirm the record appears.
 - Add one record on phone and refresh desktop.
 - Send one real Telegram text or voice record and confirm it appears in EdgeOne-backed app.
+
+## 2026-06-08 Telegram Split-Brain Fix
+
+### Problem Observed
+- Desktop EdgeOne app test worked:
+  - new record persisted after refresh
+  - phone could see the same EdgeOne data
+- Real Telegram accounting replied "saved", but the EdgeOne app did not show the record.
+
+### Diagnosis
+- Supabase count became `182`.
+- EdgeOne count also became `182`, but ID-set comparison showed a split:
+  - `onlyEdge: 1`
+  - `onlySupabase: 1`
+- Meaning:
+  - the user's desktop test record was written to EdgeOne only
+  - the Telegram record was still written to old Supabase only
+- The counts matched by coincidence, but the records were different. Do not rely on count alone for this migration.
+
+### Fix Applied
+- Telegram storage config now defaults to EdgeOne:
+  - `TELEGRAM_STORAGE_DRIVER` default: `edgeone-kv`
+  - `TELEGRAM_LEDGER_API_BASE` default: `https://bookkeeper-wms4ylwb.edgeone.cool`
+- Added safe storage diagnostic endpoint:
+  - `GET /api/telegram-webhook?debug=storage`
+  - returns driver and API host only, no secrets
+- Vercel production redeployed:
+  - deployment id: `dpl_GZwLid8gF152iEdbU6aYmKARYXg6`
+- Runtime diagnostic verified:
+  - `storageDriver: edgeone-kv`
+  - `ledgerApiHost: bookkeeper-wms4ylwb.edgeone.cool`
+
+### Data Repair
+- The Supabase-only Telegram record was copied into EdgeOne KV.
+- Final comparison after repair:
+  - EdgeOne count: `183`
+  - Supabase count: `182`
+  - `onlySupabase: 0`
+  - `onlyEdge: 1`
+- The remaining `onlyEdge` record is expected: it is the user's EdgeOne desktop test record after migration.
+
+### Next Required User Test
+- Send one new real Telegram text or voice accounting message.
+- Confirm it appears after refreshing:
+  - `https://bookkeeper-wms4ylwb.edgeone.cool`
