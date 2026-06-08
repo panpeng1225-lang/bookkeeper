@@ -33,7 +33,14 @@ export async function readJsonBody(request) {
 }
 
 export function getLedgerKv(env) {
-  const kv = env?.LEDGER_KV || env?.APP_KV || env?.BOOKKEEPER_KV;
+  const globalScope = typeof globalThis === 'object' ? globalThis : {};
+  const kv =
+    env?.LEDGER_KV ||
+    env?.APP_KV ||
+    env?.BOOKKEEPER_KV ||
+    globalScope.LEDGER_KV ||
+    globalScope.APP_KV ||
+    globalScope.BOOKKEEPER_KV;
   if (!kv) {
     throw new Error('Missing EdgeOne KV binding: expected LEDGER_KV');
   }
