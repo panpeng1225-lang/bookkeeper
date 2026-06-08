@@ -501,3 +501,45 @@
 6. Verify `/api/records` count equals `181`.
 7. Test desktop/mobile shared data.
 8. Switch Telegram writer env to EdgeOne API and test one Telegram text/voice record.
+
+## 2026-06-08 EdgeOne KV Migration Data Imported
+
+### What Was Completed
+- User bound EdgeOne KV namespace `ledger` to Pages project `bookkeeper`.
+- Runtime KV binding issue was fixed by supporting both:
+  - `env.LEDGER_KV`
+  - global `LEDGER_KV`
+- EdgeOne production redeployed:
+  - project id: `pages-nwjoloizkfpz`
+  - deployment id: `dp04i5b3igbf`
+  - URL: `https://bookkeeper-wms4ylwb.edgeone.cool`
+- `/api/health` verified:
+  - `ok: true`
+  - `records: 181`
+- Supabase export was imported into EdgeOne KV:
+  - local count: `181`
+  - remote count: `181`
+- `/api/records` verified to return JSON, not frontend HTML.
+- Live API old-snapshot race guard passed:
+  - `npm.cmd run verify:edgeone-api-race`
+  - final remote count stayed `181`
+
+### Telegram Storage Switch
+- Vercel production env updated:
+  - `TELEGRAM_STORAGE_DRIVER=edgeone-kv`
+  - `TELEGRAM_LEDGER_API_BASE=https://bookkeeper-wms4ylwb.edgeone.cool`
+- Vercel production redeployed:
+  - deployment id: `dpl_AwCVW7Z5kgWC5aUFQwKX219LWYDH`
+  - alias: `https://bookkeeper-red.vercel.app`
+- Local Telegram writer path test passed:
+  - wrote one temporary record to EdgeOne API
+  - deleted it
+  - final `/api/health` still showed `181`
+
+### Remaining Manual Validation
+- Open EdgeOne URL on desktop:
+  - `https://bookkeeper-wms4ylwb.edgeone.cool`
+- Add one test record and refresh.
+- Open the same URL on phone and confirm the record appears.
+- Add one record on phone and refresh desktop.
+- Send one real Telegram text or voice record and confirm it appears in EdgeOne-backed app.

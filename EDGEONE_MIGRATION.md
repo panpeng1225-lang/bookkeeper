@@ -143,39 +143,45 @@ Completed:
 - EdgeOne project created:
   - project name: `bookkeeper`
   - project id: `pages-nwjoloizkfpz`
-  - deployment id: `dperyoz5826a`
-
-Blocked before data import:
-
-- EdgeOne KV namespace is not yet bound to the Pages project.
-- `/api/health` currently returns:
-  - `Missing EdgeOne KV binding: expected LEDGER_KV`
-
-Required next manual console step:
-
-1. Open EdgeOne Pages project `bookkeeper`.
-2. Go to Storage / KV.
-3. Create or select namespace, recommended name: `ledger`.
-4. Bind it to project `bookkeeper`.
-5. Set binding variable name exactly:
-   - `LEDGER_KV`
-6. Redeploy if the console requires it.
-7. Recheck:
-   - `GET https://<edgeone-domain>/api/health`
-8. Only after health is OK, run import.
+  - latest deployment id: `dp04i5b3igbf`
+- EdgeOne KV namespace created:
+  - namespace: `ledger`
+  - binding variable: `LEDGER_KV`
+- KV binding verified:
+  - `/api/health` returned `ok: true`
+- Supabase data imported into EdgeOne KV:
+  - local export count: `181`
+  - remote API count: `181`
+- API verification:
+  - `/api/records` returns JSON
+  - `/api/health` returns `records: 181`
+- Race protection verified against live EdgeOne API:
+  - `npm.cmd run verify:edgeone-api-race`
+  - test creates a temporary record, PUTs an old snapshot, confirms the temporary record survives, then deletes it
+- Telegram writer path verified:
+  - local Telegram writer test wrote one temporary record to EdgeOne API and deleted it
+- Vercel Telegram webhook production env updated:
+  - `TELEGRAM_STORAGE_DRIVER=edgeone-kv`
+  - `TELEGRAM_LEDGER_API_BASE=https://bookkeeper-wms4ylwb.edgeone.cool`
+- Vercel production redeployed:
+  - deployment id: `dpl_AwCVW7Z5kgWC5aUFQwKX219LWYDH`
+  - alias: `https://bookkeeper-red.vercel.app`
 
 ## Final Verification Checklist
 
-- `/api/health` returns `ok: true`.
-- `/api/records` returns JSON, not the frontend HTML.
-- `/api/records.count` equals exported Supabase count: `181`.
-- Add one record on desktop, refresh, record still exists.
-- Open the same EdgeOne URL on mobile, new desktop record is visible.
-- Add one record on mobile, refresh desktop, mobile record is visible.
-- Run old snapshot race test against API:
+- Done: `/api/health` returns `ok: true`.
+- Done: `/api/records` returns JSON, not the frontend HTML.
+- Done: `/api/records.count` equals exported Supabase count: `181`.
+- Done: run old snapshot race test against API:
   - GET old records.
   - Add a new record.
   - PUT old snapshot.
   - Confirm the new record still exists.
-- Configure Telegram writer to EdgeOne API and send one text record.
-- Confirm Telegram-created record appears on desktop and mobile.
+- Done: configure Telegram writer to EdgeOne API.
+- Done: local Telegram writer path test.
+- Still needs manual device validation:
+  - Add one record on desktop, refresh, record still exists.
+  - Open the same EdgeOne URL on mobile, new desktop record is visible.
+  - Add one record on mobile, refresh desktop, mobile record is visible.
+  - Send one real Telegram text/voice record.
+  - Confirm Telegram-created record appears on desktop and mobile.
